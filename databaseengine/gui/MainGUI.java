@@ -7,7 +7,6 @@ public class MainGUI extends javax.swing.JFrame {
     public MainGUI() {
         initComponents();
     }
-
    
 
     private void initComponents() {
