@@ -19,5 +19,7 @@ public class StartDatabase {
             System.exit(0);
         }
         System.out.println("Opened database successfully");
+        Database db = new Database(connect);
+        db.getStudent().viewStudents();
     }
 }
