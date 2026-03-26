@@ -129,4 +129,6 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JTabbedPane Tabs;
     private javax.swing.JLabel Title;
     private javax.swing.JPanel TopPanel;
+
+    //hello world
 }
