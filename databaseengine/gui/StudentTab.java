@@ -1,6 +1,17 @@
 package databaseengine.gui;
 
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import databaseengine.backend.Student;
+
+
 public class StudentTab extends javax.swing.JPanel {
+
+    private ArrayList<Student> studentList = new ArrayList<>();
+    private int currentID = 1;
 
     public StudentTab() {
         initComponents();
@@ -22,7 +33,10 @@ public class StudentTab extends javax.swing.JPanel {
         ST_BirthplaceField = new javax.swing.JTextField();
         ST_AddressField = new javax.swing.JTextField();
         ST_HighSchoolField = new javax.swing.JTextField();
-        ST_BirthdayField = new javax.swing.JSpinner();
+        ST_BirthdayField = new JSpinner(new javax.swing.SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(ST_BirthdayField, "yyyy-MM-dd");
+        ST_BirthdayField.setEditor(dateEditor);
+        ST_BirthdayField.setValue(new java.util.Date()); // default to today
         ST_CategoryField = new javax.swing.JComboBox<>();
         ST_Add = new javax.swing.JButton();
         ST_Update = new javax.swing.JButton();
@@ -102,6 +116,7 @@ public class StudentTab extends javax.swing.JPanel {
         ST_Clear.setBackground(new java.awt.Color(210, 180, 140));
         ST_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         ST_Clear.setText("Clear");
+        ST_Clear.addActionListener(this::ST_ClearActionPerformed);
 
         javax.swing.GroupLayout ST_LeftPanelLayout = new javax.swing.GroupLayout(ST_LeftPanel);
         ST_LeftPanel.setLayout(ST_LeftPanelLayout);
@@ -179,17 +194,11 @@ public class StudentTab extends javax.swing.JPanel {
 
         ST_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        ST_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"
-            }
+        ST_Table.setModel(new DefaultTableModel(
+            new Object[][] {}, // start empty
+            new String[] {"ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"}
         ));
+
         ST_RightScrollPane.setViewportView(ST_Table);
 
         javax.swing.GroupLayout ST_RightPanelLayout = new javax.swing.GroupLayout(ST_RightPanel);
@@ -233,15 +242,105 @@ public class StudentTab extends javax.swing.JPanel {
 
     private void ST_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
         // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+
+        // Get values from fields
+        String name = ST_NameField.getText();
+
+        // Convert spinner date to yyyy-MM-dd string
+        java.util.Date birthdayDate = (java.util.Date) ST_BirthdayField.getValue();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String birthday = sdf.format(birthdayDate);
+
+        String birthplace = ST_BirthplaceField.getText();
+        String address = ST_AddressField.getText();
+        String highschool = ST_HighSchoolField.getText();
+        String category = ST_CategoryField.getSelectedItem().toString();
+
+        // Create Student object
+        Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
+
+        // Add to ArrayList
+        studentList.add(s);
+
+        // Add to table
+        model.addRow(new Object[]{
+            s.getStudentID(),
+            s.getStudentName(),
+            s.getStudentBirthday(),  // already formatted
+            s.getStudentBirthplace(),
+            s.getStudentAddress(),
+            s.getStudentHighschool(),
+            s.getStudentCategory()
+        });
+
+        currentID++;
     }                                      
 
     private void ST_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
+         int row = ST_Table.getSelectedRow();
+            if (row == -1) return;
+
+            Student s = studentList.get(row);
+
+            // Update fields
+            s.setStudentName(ST_NameField.getText());
+
+            // Convert spinner date to yyyy-MM-dd string
+            java.util.Date birthdayDate = (java.util.Date) ST_BirthdayField.getValue();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            String birthday = sdf.format(birthdayDate);
+            s.setStudentBirthday(birthday);
+
+            s.setStudentBirthplace(ST_BirthplaceField.getText());
+            s.setStudentAddress(ST_AddressField.getText());
+            s.setStudentHighschool(ST_HighSchoolField.getText());
+            s.setStudentCategory(ST_CategoryField.getSelectedItem().toString());
+
+            // Update table row
+            DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+            model.setValueAt(s.getStudentName(), row, 1);
+            model.setValueAt(s.getStudentBirthday(), row, 2);  // formatted birthday
+            model.setValueAt(s.getStudentBirthplace(), row, 3);
+            model.setValueAt(s.getStudentAddress(), row, 4);
+            model.setValueAt(s.getStudentHighschool(), row, 5);
+            model.setValueAt(s.getStudentCategory(), row, 6);
     }                                         
 
     private void ST_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
+
+         int row = ST_Table.getSelectedRow();
+
+    if (row == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a row to delete.");
+        return;
+    }
+
+    // Remove from ArrayList
+    if (row < studentList.size()) {
+        studentList.remove(row);
+    }
+
+    // Remove from table model
+    DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+    model.removeRow(row);
+
+    JOptionPane.showMessageDialog(null, "Deleted successfully!");
     }                                         
+
+    private void ST_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    ST_StudentIDField.setText("read-only / auto");
+    ST_NameField.setText("");
+    ST_BirthplaceField.setText("");
+    ST_AddressField.setText("");
+    ST_HighSchoolField.setText("");
+    ST_CategoryField.setSelectedIndex(0);
+    ST_BirthdayField.setValue(new java.util.Date());
+
+    ST_Table.clearSelection();
+    }
 
     private void ST_StudentIDFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                  
         // TODO add your handling code here:
