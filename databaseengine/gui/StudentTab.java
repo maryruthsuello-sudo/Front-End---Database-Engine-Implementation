@@ -1,10 +1,15 @@
 package databaseengine.gui;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import databaseengine.backend.Student;
 
 
@@ -15,6 +20,17 @@ public class StudentTab extends javax.swing.JPanel {
 
     public StudentTab() {
         initComponents();
+        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+        
+        // Add ListSelectionListener to the table
+        ST_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) { // Ensure this is the final event in a series of adjustments
+                    ST_TableSelectionChanged(e);
+                }
+            }
+        });
     }
 
 
@@ -248,7 +264,7 @@ public class StudentTab extends javax.swing.JPanel {
         String name = ST_NameField.getText();
 
         // Convert spinner date to yyyy-MM-dd string
-        java.util.Date birthdayDate = (java.util.Date) ST_BirthdayField.getValue();
+        Date birthdayDate = (Date) ST_BirthdayField.getValue();
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
         String birthday = sdf.format(birthdayDate);
 
@@ -265,7 +281,7 @@ public class StudentTab extends javax.swing.JPanel {
 
         // Add to table
         model.addRow(new Object[]{
-            s.getStudentID(),
+            String.format("REC-%03d", s.getStudentID()),
             s.getStudentName(),
             s.getStudentBirthday(),  // already formatted
             s.getStudentBirthplace(),
@@ -275,69 +291,85 @@ public class StudentTab extends javax.swing.JPanel {
         });
 
         currentID++;
+        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
     }                                      
 
     private void ST_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
-         int row = ST_Table.getSelectedRow();
-            if (row == -1) return;
+        int selectedRow = ST_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            Student s = studentList.get(row);
+        // Get the Student object from the list corresponding to the selected row
+        // Note: The studentList index should match the table row index if deletions are handled correctly.
+        Student studentToUpdate = studentList.get(selectedRow);
 
-            // Update fields
-            s.setStudentName(ST_NameField.getText());
+        // Get new values from input fields
+        String newName = ST_NameField.getText();
+        
+        Date newBirthdayDate = (Date) ST_BirthdayField.getValue();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String newBirthday = sdf.format(newBirthdayDate);
 
-            // Convert spinner date to yyyy-MM-dd string
-            java.util.Date birthdayDate = (java.util.Date) ST_BirthdayField.getValue();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            String birthday = sdf.format(birthdayDate);
-            s.setStudentBirthday(birthday);
+        String newBirthplace = ST_BirthplaceField.getText();
+        String newAddress = ST_AddressField.getText();
+        String newHighschool = ST_HighSchoolField.getText();
+        String newCategory = ST_CategoryField.getSelectedItem().toString();
 
-            s.setStudentBirthplace(ST_BirthplaceField.getText());
-            s.setStudentAddress(ST_AddressField.getText());
-            s.setStudentHighschool(ST_HighSchoolField.getText());
-            s.setStudentCategory(ST_CategoryField.getSelectedItem().toString());
+        // Update the Student object in the ArrayList
+        studentToUpdate.setStudentName(newName);
+        studentToUpdate.setStudentBirthday(newBirthday);
+        studentToUpdate.setStudentBirthplace(newBirthplace);
+studentToUpdate.setStudentAddress(newAddress);
+        studentToUpdate.setStudentHighschool(newHighschool);
+        studentToUpdate.setStudentCategory(newCategory);
 
-            // Update table row
-            DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
-            model.setValueAt(s.getStudentName(), row, 1);
-            model.setValueAt(s.getStudentBirthday(), row, 2);  // formatted birthday
-            model.setValueAt(s.getStudentBirthplace(), row, 3);
-            model.setValueAt(s.getStudentAddress(), row, 4);
-            model.setValueAt(s.getStudentHighschool(), row, 5);
-            model.setValueAt(s.getStudentCategory(), row, 6);
+        // Update the JTable model with the new values
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+        model.setValueAt(newName, selectedRow, 1);
+        model.setValueAt(newBirthday, selectedRow, 2); // Formatted birthday string
+        model.setValueAt(newBirthplace, selectedRow, 3);
+        model.setValueAt(newAddress, selectedRow, 4);
+        model.setValueAt(newHighschool, selectedRow, 5);
+        model.setValueAt(newCategory, selectedRow, 6);
+        
+        JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }                                         
 
     private void ST_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
 
-         int row = ST_Table.getSelectedRow();
+        int row = ST_Table.getSelectedRow();
 
     if (row == -1) {
         JOptionPane.showMessageDialog(null, "Please select a row to delete.");
         return;
     }
 
-    // Remove from ArrayList
-    if (row < studentList.size()) {
-        studentList.remove(row);
-    }
+        // Remove from ArrayList
+        if (row < studentList.size()) {
+            studentList.remove(row);
+        }
 
-    // Remove from table model
-    DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
-    model.removeRow(row);
+        // Remove from table model
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+        model.removeRow(row);
 
-    JOptionPane.showMessageDialog(null, "Deleted successfully!");
+        JOptionPane.showMessageDialog(null, "Deleted successfully!");
+        // After deletion, clear fields and reset Student ID for next entry
+        ST_ClearActionPerformed(evt);
     }                                         
 
     private void ST_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
-    ST_StudentIDField.setText("read-only / auto");
+    ST_StudentIDField.setText(String.format("REC-%03d", currentID));
     ST_NameField.setText("");
     ST_BirthplaceField.setText("");
     ST_AddressField.setText("");
     ST_HighSchoolField.setText("");
-    ST_CategoryField.setSelectedIndex(0);
-    ST_BirthdayField.setValue(new java.util.Date());
+        ST_CategoryField.setSelectedIndex(0); // Reset to first item
+        ST_BirthdayField.setValue(new Date()); // Reset to current date
 
     ST_Table.clearSelection();
     }
@@ -361,6 +393,42 @@ public class StudentTab extends javax.swing.JPanel {
     private void ST_HighSchoolFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         // TODO add your handling code here:
     }                                                  
+
+    // New method to handle table row selection
+    private void ST_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = ST_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+            
+            // Retrieve data from the selected row
+            String studentId = (String) model.getValueAt(selectedRow, 0); // "REC-001"
+            String name = (String) model.getValueAt(selectedRow, 1);
+            String birthdayStr = (String) model.getValueAt(selectedRow, 2); // "yyyy-MM-dd"
+            String birthplace = (String) model.getValueAt(selectedRow, 3);
+            String address = (String) model.getValueAt(selectedRow, 4);
+            String highschool = (String) model.getValueAt(selectedRow, 5);
+            String category = (String) model.getValueAt(selectedRow, 6);
+
+            // Populate input fields
+            ST_StudentIDField.setText(studentId);
+            ST_NameField.setText(name);
+            ST_BirthplaceField.setText(birthplace);
+            ST_AddressField.setText(address);
+            ST_HighSchoolField.setText(highschool);
+            ST_CategoryField.setSelectedItem(category);
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date birthdayDate = sdf.parse(birthdayStr);
+                ST_BirthdayField.setValue(birthdayDate);
+            } catch (ParseException ex) {
+                System.err.println("Error parsing birthday date from table: " + ex.getMessage());
+            }
+        } else {
+            // If no row is selected (e.g., after deletion or initial state), clear fields
+            ST_ClearActionPerformed(null); // Use the existing clear logic
+        }
+    }
 
     private javax.swing.JButton ST_Add;
     private javax.swing.JLabel ST_Address;
