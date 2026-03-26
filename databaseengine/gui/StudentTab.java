@@ -1,4 +1,4 @@
-package databaseengine;
+package databaseengine.gui;
 
 public class StudentTab extends javax.swing.JPanel {
 
@@ -6,7 +6,6 @@ public class StudentTab extends javax.swing.JPanel {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
 
     private void initComponents() {
 

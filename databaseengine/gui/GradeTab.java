@@ -1,4 +1,4 @@
-package databaseengine;
+package databaseengine.gui;
 
 public class GradeTab extends javax.swing.JPanel {
 
@@ -6,8 +6,7 @@ public class GradeTab extends javax.swing.JPanel {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
-
+   
     private void initComponents() {
 
         GT_LeftPanel = new javax.swing.JPanel();

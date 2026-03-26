@@ -1,4 +1,4 @@
-package databaseengine;
+package databaseengine.gui;
 
 public class MainGUI extends javax.swing.JFrame {
     
@@ -8,7 +8,7 @@ public class MainGUI extends javax.swing.JFrame {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
+   
 
     private void initComponents() {
 
@@ -16,14 +16,14 @@ public class MainGUI extends javax.swing.JFrame {
         TopPanel = new javax.swing.JPanel();
         Title = new javax.swing.JLabel();
         Tabs = new javax.swing.JTabbedPane();
-        ST = new databaseengine.StudentTab();
-        PT = new databaseengine.ProgramTab();
-        CT = new databaseengine.CourseTab();
-        ET = new databaseengine.EnrollmentTab();
-        SeT = new databaseengine.SectionTab();
-        GT = new databaseengine.GradeTab();
-        GrT = new databaseengine.GraduateTab();
-        TT = new databaseengine.TORTab();
+        ST = new databaseengine.gui.StudentTab();
+        PT = new databaseengine.gui.ProgramTab();
+        CT = new databaseengine.gui.CourseTab();
+        ET = new databaseengine.gui.EnrollmentTab();
+        SeT = new databaseengine.gui.SectionTab();
+        GT = new databaseengine.gui.GradeTab();
+        GrT = new databaseengine.gui.GraduateTab();
+        TT = new databaseengine.gui.TORTab();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -117,15 +117,15 @@ public class MainGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> new MainGUI().setVisible(true));
     }
 
-    private databaseengine.CourseTab CT;
-    private databaseengine.EnrollmentTab ET;
-    private databaseengine.GradeTab GT;
-    private databaseengine.GraduateTab GrT;
+    private databaseengine.gui.CourseTab CT;
+    private databaseengine.gui.EnrollmentTab ET;
+    private databaseengine.gui.GradeTab GT;
+    private databaseengine.gui.GraduateTab GrT;
     private javax.swing.JPanel MainPanel;
-    private databaseengine.ProgramTab PT;
-    private databaseengine.StudentTab ST;
-    private databaseengine.SectionTab SeT;
-    private databaseengine.TORTab TT;
+    private databaseengine.gui.ProgramTab PT;
+    private databaseengine.gui.StudentTab ST;
+    private databaseengine.gui.SectionTab SeT;
+    private databaseengine.gui.TORTab TT;
     private javax.swing.JTabbedPane Tabs;
     private javax.swing.JLabel Title;
     private javax.swing.JPanel TopPanel;

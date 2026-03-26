@@ -1,4 +1,4 @@
-package databaseengine;
+package databaseengine.backend;
 
 public class Course {
     private String program;

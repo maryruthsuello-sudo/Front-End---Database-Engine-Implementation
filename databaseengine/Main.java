@@ -2,6 +2,9 @@ package databaseengine;
 
 import java.util.Scanner;
 
+import databaseengine.backend.StudentManager;
+import databaseengine.backend.CourseManager;
+
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -19,7 +22,7 @@ public class Main {
 
             try {
                 int choice = Integer.parseInt(sc.nextLine().trim());
-                switch (choice) {
+                switch   (choice) {
                     case 1: studentManager.addStudent(sc); break;
                     case 2: courseManager.addCourse(sc); break;
                     case 3: studentManager.viewStudents(); break;

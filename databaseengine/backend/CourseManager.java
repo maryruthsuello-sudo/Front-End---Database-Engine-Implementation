@@ -1,4 +1,4 @@
-package databaseengine;
+package databaseengine.backend;
 
 import java.util.ArrayList;
 import java.util.Scanner;
