@@ -22,6 +22,9 @@ public class Course {
         this.dateSubmitted = dateSubmitted;
     }
 
+    public Course() {
+    }
+
     public String getSubjectCode() {
         return subjectCode;
     }
@@ -30,5 +33,9 @@ public class Course {
         return program + " | " + subjectCode + " | Units: " + units + " | " + descriptiveTitle
                 + " | Grade: " + grade + " | Time: " + time + " | Term: " + term
                 + " | Date Submitted: " + dateSubmitted;
+    }
+
+    public void setSubjectCode(String subjectCode) {
+        this.subjectCode = subjectCode;
     }
 }
