@@ -1,25 +1,46 @@
 package databaseengine.backend;
 
 public class Student {
-   String student_name;
-   int student_ID;
-   String student_birthday;
-   String student_address;
-   String student_highschool;
-   String student_category;
-   String student_birthplace;
+    private String studentName;
+    private int studentID;
+    private String studentBirthday;
+    private String studentBirthplace;
+    private String studentAddress;
+    private String studentHighschool;
+    private String studentCategory;
 
-   public Student(String var1, int var2, String var3, String var4, String var5, String var6, String var7) {
-      this.student_name = var1;
-      this.student_ID = var2;
-      this.student_birthday = var3;
-      this.student_address = var4;
-      this.student_highschool = var5;
-      this.student_category = var6;
-      this.student_birthplace = var7;
-   }
+    public Student(String studentName, int studentID, String studentBirthday,
+                   String studentBirthplace, String studentAddress,
+                   String studentHighschool, String studentCategory) {
+        this.studentName = studentName;
+        this.studentID = studentID;
+        this.studentBirthday = studentBirthday;
+        this.studentBirthplace = studentBirthplace;
+        this.studentAddress = studentAddress;
+        this.studentHighschool = studentHighschool;
+        this.studentCategory = studentCategory;
+    }
 
-   public String display() {
-      return this.student_name + " | ID: " + this.student_ID + " | Birthday: " + this.student_birthday + " | Address: " + this.student_address + " | Highschool: " + this.student_highschool + " | Category: " + this.student_category + " | Birthplace: " + this.student_birthplace;
-   }
+    // Getters
+    public int getStudentID() { return studentID; }
+    public String getStudentName() { return studentName; }
+    public String getStudentBirthday() { return studentBirthday; }
+    public String getStudentBirthplace() { return studentBirthplace; }
+    public String getStudentAddress() { return studentAddress; }
+    public String getStudentHighschool() { return studentHighschool; }
+    public String getStudentCategory() { return studentCategory; }
+
+    // Setters (needed for Update)
+    public void setStudentName(String studentName) { this.studentName = studentName; }
+    public void setStudentBirthday(String studentBirthday) { this.studentBirthday = studentBirthday; }
+    public void setStudentBirthplace(String studentBirthplace) { this.studentBirthplace = studentBirthplace; }
+    public void setStudentAddress(String studentAddress) { this.studentAddress = studentAddress; }
+    public void setStudentHighschool(String studentHighschool) { this.studentHighschool = studentHighschool; }
+    public void setStudentCategory(String studentCategory) { this.studentCategory = studentCategory; }
+
+    public String display() {
+        return studentName + " | ID: " + studentID + " | Birthday: " + studentBirthday
+                + " | Birthplace: " + studentBirthplace + " | Address: " + studentAddress
+                + " | Highschool: " + studentHighschool + " | Category: " + studentCategory;
+    }
 }
