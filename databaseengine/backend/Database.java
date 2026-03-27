@@ -1,16 +1,16 @@
 package databaseengine.backend;
 
 import java.sql.Connection;
-import databaseengine.backend.model.Student;
+import databaseengine.backend.service.StudentService;
 
 public class Database {
-    private Student student;
+    private StudentService student;
 
     public Database(Connection connect){
-        this.student = new Student(connect);
+        this.student = new StudentService(connect);
     }
 
-    public Student getStudent(){
+    public StudentService getStudent(){
         return student;
     }
 }
