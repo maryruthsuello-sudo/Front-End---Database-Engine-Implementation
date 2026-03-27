@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 import databaseengine.backend.model.Student;
 
@@ -44,7 +46,7 @@ public class StudentService {
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             
-            if (rs == null) return true; 
+            if (rs == null) return true; // student does not exist
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -53,6 +55,7 @@ public class StudentService {
         return false;
     }
 
+    //update student
     public boolean updateStudent(Student student){
         String sql = "UPDATE student SET student_name = ?, student_birthday = ?, student_address = ?, "
                + "student_highschool = ?, student_category = ?, birth_place = ? "
@@ -68,12 +71,12 @@ public class StudentService {
 
             int affectedRow = pStatement.executeUpdate();
 
-            if (affectedRow > 0) return true;
+            if (affectedRow > 0) return true; // not updated
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // student already exist
+        // updated successfully
         return false;
     }
 
@@ -94,6 +97,33 @@ public class StudentService {
         }
         // not deleted
         return false;
+    }
+
+    //get all students to display in table
+    public ArrayList<Student> getAllStudents() {
+        ArrayList<Student> students = new ArrayList<>();
+        String sql = "SELECT student_id, student_name, student_birthday, student_address, "
+                   + "student_highschool, student_category, birth_place FROM student";
+
+        try (Statement stmt = connect.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Student student = new Student(
+                    rs.getInt("student_id"),
+                    rs.getString("student_name"),
+                    rs.getDate("student_birthday"),
+                    rs.getString("birth_place"),
+                    rs.getString("student_address"),
+                    rs.getString("student_highschool"),
+                    rs.getString("student_category")
+                );
+                students.add(student);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return students;
     }
 
 }
