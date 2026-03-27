@@ -55,9 +55,9 @@ public class MainGUI extends javax.swing.JFrame {
         Tabs.setForeground(new java.awt.Color(245, 240, 237));
         Tabs.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         Tabs.addTab("Students", ST);
-        Tabs.addTab("Programs", PT);
-        Tabs.addTab("Courses", CT);
         Tabs.addTab("Enrollment", ET);
+        Tabs.addTab("Department", PT);
+        Tabs.addTab("Courses", CT);
         Tabs.addTab("Sections", SeT);
         Tabs.addTab("Grades", GT);
         Tabs.addTab("Graduates", GrT);
