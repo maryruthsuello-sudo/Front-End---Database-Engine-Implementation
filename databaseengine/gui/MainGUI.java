@@ -5,6 +5,7 @@ import databaseengine.backend.StartDatabase;
 public class MainGUI extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainGUI.class.getName());
+    StartDatabase startDb = new StartDatabase();
 
     public MainGUI() {
         initComponents();
@@ -17,7 +18,7 @@ public class MainGUI extends javax.swing.JFrame {
         TopPanel = new javax.swing.JPanel();
         Title = new javax.swing.JLabel();
         Tabs = new javax.swing.JTabbedPane();
-        ST = new databaseengine.gui.StudentTab();
+        ST = new databaseengine.gui.StudentTab(db);
         PT = new databaseengine.gui.ProgramTab();
         CT = new databaseengine.gui.CourseTab();
         ET = new databaseengine.gui.EnrollmentTab();
