@@ -1,15 +1,9 @@
 package databaseengine.backend.service;
 
 import databaseengine.backend.model.Section;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class SectionService {
     private final Connection connect;
@@ -20,102 +14,79 @@ public class SectionService {
 
     public List<Section> viewSection() {
         List<Section> sections = new ArrayList<>();
-        String sql = "SELECT course_year, subject_code, no_of_students FROM sectn";
+        String sql = "SELECT * FROM sectn";
 
-        try (
-            Statement statement = connect.createStatement();
-            ResultSet rs = statement.executeQuery(sql)
-        ) {
+        try (Statement statement = connect.createStatement();
+             ResultSet rs = statement.executeQuery(sql)) {
             while (rs.next()) {
-                Section sect = new Section(
-                    rs.getString("course_year"), 
-                    rs.getString("subject_code"),  
-                    rs.getInt("no_of_students")
-                );
-                sections.add(sect);
+                sections.add(new Section(
+                    rs.getInt("section_id"),
+                    rs.getInt("course_id"),
+                    rs.getString("instructor"),
+                    rs.getString("school_year"),
+                    rs.getString("term"),
+                    rs.getString("schedule")
+                ));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return sections;
     }
 
-    public boolean createSection(Section newSection) {
-        String sql = "INSERT INTO sectn (course_year, no_of_students, subject_code) VALUES (?, ?, ?)";
-        if(!findSection(newSection.getCourseYear(), newSection.getSubjectCode())){
-            try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-                pStatement.setString(1, newSection.getCourseYear());
-                pStatement.setInt(2, newSection.getNoOfStudents());
-                pStatement.setString(3, newSection.getSubjectCode());
-
-                int affectedRows = pStatement.executeUpdate();
-
-                if (affectedRows > 0) {
-                    return true;
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-        }
-        return false;
-    }
-
-    public boolean updateSection(Section updateSection) {
-        if (!findSection(updateSection.getCourseYear(), updateSection.getSubjectCode())) {
-            System.out.println("Section not found.");
-            return false;
+    public boolean createSection(Section section) {
+        String sql = "INSERT INTO sectn (section_id, course_id, instructor, school_year, term, schedule) VALUES (?, ?, ?, ?, ?)";
+        if (findSection(section.getSectionId())) {
+            System.out.println("Error: This section already exists for this term.");
+            return false; 
         }
 
-        String sql = "UPDATE sectn SET no_of_students = ? WHERE course_year = ? AND subject_code = ?";
-
-        try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setInt(1, updateSection.getNoOfStudents());
-            pStatement.setString(2, updateSection.getCourseYear());
-            pStatement.setString(3, updateSection.getSubjectCode());
-
-            int affectedRows = pStatement.executeUpdate();
-
-            if (affectedRows > 0) {
-                return true;
-            }
-
-        } catch (SQLException e) {
-            e.getStackTrace();
-        }
-
-        return false;
-    }
-
-    public boolean deleteSection(String courseYr, String subjCode) {
-        String sql = "DELETE FROM sectn WHERE course_year = ? AND subject_code = ?";
-
-        try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, courseYr);
-            pStatement.setString(2, subjCode);
-            int affectedRows = pStatement.executeUpdate();
-
-            if (affectedRows > 0) {
-                System.out.println("Section deleted successfully.");
-                return true;
-            }
-
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, section.getSectionId());
+            ps.setInt(2, section.getCourseId());
+            ps.setString(3, section.getInstructor());
+            ps.setString(4, section.getSchoolYear());
+            ps.setString(5, section.getTerm());
+            ps.setString(6, section.getSchedule());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-
-        return false;
     }
 
-    public boolean findSection(String courseYear, String subjectCode) {
+    public boolean updateSection(Section section) {
+        String sql = "UPDATE sectn SET course_id = ?, instructor = ?, school_year = ?, term = ?, schedule = ? WHERE section_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, section.getCourseId());
+            ps.setString(2, section.getInstructor());
+            ps.setString(3, section.getSchoolYear());
+            ps.setString(4, section.getTerm());
+            ps.setString(5, section.getSchedule());
+            ps.setInt(6, section.getSectionId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteSection(int sectionId) {
+        String sql = "DELETE FROM sectn WHERE section_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, sectionId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean findSection(int sectionId) {
         String sql = "SELECT 1 FROM sectn WHERE course_year = ? AND subject_code = ?";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, courseYear);
-            ps.setString(2, subjectCode);
+            ps.setInt(1, sectionId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

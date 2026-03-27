@@ -10,12 +10,12 @@ import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import databaseengine.backend.Student;
+//import databaseengine.backend.Student;
 
 
 public class StudentTab extends javax.swing.JPanel {
 
-    private ArrayList<Student> studentList = new ArrayList<>();
+    //private ArrayList<Student> studentList = new ArrayList<>();
     private int currentID = 1;
 
     public StudentTab() {
@@ -274,21 +274,21 @@ public class StudentTab extends javax.swing.JPanel {
         String category = ST_CategoryField.getSelectedItem().toString();
 
         // Create Student object
-        Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
+        //Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
 
         // Add to ArrayList
-        studentList.add(s);
+        //studentList.add(s);
 
         // Add to table
-        model.addRow(new Object[]{
-            String.format("REC-%03d", s.getStudentID()),
-            s.getStudentName(),
-            s.getStudentBirthday(),  // already formatted
-            s.getStudentBirthplace(),
-            s.getStudentAddress(),
-            s.getStudentHighschool(),
-            s.getStudentCategory()
-        });
+        // model.addRow(new Object[]{
+        //     String.format("REC-%03d", s.getStudentID()),
+        //     s.getStudentName(),
+        //     s.getStudentBirthday(),  // already formatted
+        //     s.getStudentBirthplace(),
+        //     s.getStudentAddress(),
+        //     s.getStudentHighschool(),
+        //     s.getStudentCategory()
+        // });
 
         currentID++;
         ST_StudentIDField.setText(String.format("REC-%03d", currentID));
@@ -304,7 +304,7 @@ public class StudentTab extends javax.swing.JPanel {
 
         // Get the Student object from the list corresponding to the selected row
         // Note: The studentList index should match the table row index if deletions are handled correctly.
-        Student studentToUpdate = studentList.get(selectedRow);
+        //Student studentToUpdate = studentList.get(selectedRow);
 
         // Get new values from input fields
         String newName = ST_NameField.getText();
@@ -319,12 +319,12 @@ public class StudentTab extends javax.swing.JPanel {
         String newCategory = ST_CategoryField.getSelectedItem().toString();
 
         // Update the Student object in the ArrayList
-        studentToUpdate.setStudentName(newName);
-        studentToUpdate.setStudentBirthday(newBirthday);
-        studentToUpdate.setStudentBirthplace(newBirthplace);
-studentToUpdate.setStudentAddress(newAddress);
-        studentToUpdate.setStudentHighschool(newHighschool);
-        studentToUpdate.setStudentCategory(newCategory);
+//         studentToUpdate.setStudentName(newName);
+//         studentToUpdate.setStudentBirthday(newBirthday);
+//         studentToUpdate.setStudentBirthplace(newBirthplace);
+// studentToUpdate.setStudentAddress(newAddress);
+//         studentToUpdate.setStudentHighschool(newHighschool);
+//         studentToUpdate.setStudentCategory(newCategory);
 
         // Update the JTable model with the new values
         DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
@@ -349,9 +349,9 @@ studentToUpdate.setStudentAddress(newAddress);
     }
 
         // Remove from ArrayList
-        if (row < studentList.size()) {
-            studentList.remove(row);
-        }
+        // if (row < studentList.size()) {
+        //     studentList.remove(row);
+        // }
 
         // Remove from table model
         DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
