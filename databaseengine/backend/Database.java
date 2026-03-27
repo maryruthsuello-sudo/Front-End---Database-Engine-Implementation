@@ -11,6 +11,7 @@ public class Database {
 
     public Database(Connection connect){
         this.student = new StudentService(connect);
+        this.section = new SectionService(connect);
     }
 
     public StudentService getStudent(){
