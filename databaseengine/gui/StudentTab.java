@@ -1,9 +1,36 @@
 package databaseengine.gui;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import databaseengine.backend.Student;
+
+
 public class StudentTab extends javax.swing.JPanel {
+
+    private ArrayList<Student> studentList = new ArrayList<>();
+    private int currentID = 1;
 
     public StudentTab() {
         initComponents();
+        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+        
+        // Add ListSelectionListener to the table
+        ST_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) { // Ensure this is the final event in a series of adjustments
+                    ST_TableSelectionChanged(e);
+                }
+            }
+        });
     }
 
 
@@ -22,7 +49,10 @@ public class StudentTab extends javax.swing.JPanel {
         ST_BirthplaceField = new javax.swing.JTextField();
         ST_AddressField = new javax.swing.JTextField();
         ST_HighSchoolField = new javax.swing.JTextField();
-        ST_BirthdayField = new javax.swing.JSpinner();
+        ST_BirthdayField = new JSpinner(new javax.swing.SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(ST_BirthdayField, "yyyy-MM-dd");
+        ST_BirthdayField.setEditor(dateEditor);
+        ST_BirthdayField.setValue(new java.util.Date()); // default to today
         ST_CategoryField = new javax.swing.JComboBox<>();
         ST_Add = new javax.swing.JButton();
         ST_Update = new javax.swing.JButton();
@@ -102,6 +132,7 @@ public class StudentTab extends javax.swing.JPanel {
         ST_Clear.setBackground(new java.awt.Color(210, 180, 140));
         ST_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         ST_Clear.setText("Clear");
+        ST_Clear.addActionListener(this::ST_ClearActionPerformed);
 
         javax.swing.GroupLayout ST_LeftPanelLayout = new javax.swing.GroupLayout(ST_LeftPanel);
         ST_LeftPanel.setLayout(ST_LeftPanelLayout);
@@ -179,17 +210,11 @@ public class StudentTab extends javax.swing.JPanel {
 
         ST_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        ST_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"
-            }
+        ST_Table.setModel(new DefaultTableModel(
+            new Object[][] {}, // start empty
+            new String[] {"ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"}
         ));
+
         ST_RightScrollPane.setViewportView(ST_Table);
 
         javax.swing.GroupLayout ST_RightPanelLayout = new javax.swing.GroupLayout(ST_RightPanel);
@@ -233,15 +258,121 @@ public class StudentTab extends javax.swing.JPanel {
 
     private void ST_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
         // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+
+        // Get values from fields
+        String name = ST_NameField.getText();
+
+        // Convert spinner date to yyyy-MM-dd string
+        Date birthdayDate = (Date) ST_BirthdayField.getValue();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String birthday = sdf.format(birthdayDate);
+
+        String birthplace = ST_BirthplaceField.getText();
+        String address = ST_AddressField.getText();
+        String highschool = ST_HighSchoolField.getText();
+        String category = ST_CategoryField.getSelectedItem().toString();
+
+        // Create Student object
+        Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
+
+        // Add to ArrayList
+        studentList.add(s);
+
+        // Add to table
+        model.addRow(new Object[]{
+            String.format("REC-%03d", s.getStudentID()),
+            s.getStudentName(),
+            s.getStudentBirthday(),  // already formatted
+            s.getStudentBirthplace(),
+            s.getStudentAddress(),
+            s.getStudentHighschool(),
+            s.getStudentCategory()
+        });
+
+        currentID++;
+        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
     }                                      
 
     private void ST_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
+        int selectedRow = ST_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Get the Student object from the list corresponding to the selected row
+        // Note: The studentList index should match the table row index if deletions are handled correctly.
+        Student studentToUpdate = studentList.get(selectedRow);
+
+        // Get new values from input fields
+        String newName = ST_NameField.getText();
+        
+        Date newBirthdayDate = (Date) ST_BirthdayField.getValue();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String newBirthday = sdf.format(newBirthdayDate);
+
+        String newBirthplace = ST_BirthplaceField.getText();
+        String newAddress = ST_AddressField.getText();
+        String newHighschool = ST_HighSchoolField.getText();
+        String newCategory = ST_CategoryField.getSelectedItem().toString();
+
+        // Update the Student object in the ArrayList
+        studentToUpdate.setStudentName(newName);
+        studentToUpdate.setStudentBirthday(newBirthday);
+        studentToUpdate.setStudentBirthplace(newBirthplace);
+studentToUpdate.setStudentAddress(newAddress);
+        studentToUpdate.setStudentHighschool(newHighschool);
+        studentToUpdate.setStudentCategory(newCategory);
+
+        // Update the JTable model with the new values
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+        model.setValueAt(newName, selectedRow, 1);
+        model.setValueAt(newBirthday, selectedRow, 2); // Formatted birthday string
+        model.setValueAt(newBirthplace, selectedRow, 3);
+        model.setValueAt(newAddress, selectedRow, 4);
+        model.setValueAt(newHighschool, selectedRow, 5);
+        model.setValueAt(newCategory, selectedRow, 6);
+        
+        JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }                                         
 
     private void ST_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
+
+        int row = ST_Table.getSelectedRow();
+
+    if (row == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a row to delete.");
+        return;
+    }
+
+        // Remove from ArrayList
+        if (row < studentList.size()) {
+            studentList.remove(row);
+        }
+
+        // Remove from table model
+        DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+        model.removeRow(row);
+
+        JOptionPane.showMessageDialog(null, "Deleted successfully!");
+        // After deletion, clear fields and reset Student ID for next entry
+        ST_ClearActionPerformed(evt);
     }                                         
+
+    private void ST_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+    ST_NameField.setText("");
+    ST_BirthplaceField.setText("");
+    ST_AddressField.setText("");
+    ST_HighSchoolField.setText("");
+        ST_CategoryField.setSelectedIndex(0); // Reset to first item
+        ST_BirthdayField.setValue(new Date()); // Reset to current date
+
+    ST_Table.clearSelection();
+    }
 
     private void ST_StudentIDFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                  
         // TODO add your handling code here:
@@ -262,6 +393,42 @@ public class StudentTab extends javax.swing.JPanel {
     private void ST_HighSchoolFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         // TODO add your handling code here:
     }                                                  
+
+    // New method to handle table row selection
+    private void ST_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = ST_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
+            
+            // Retrieve data from the selected row
+            String studentId = (String) model.getValueAt(selectedRow, 0); // "REC-001"
+            String name = (String) model.getValueAt(selectedRow, 1);
+            String birthdayStr = (String) model.getValueAt(selectedRow, 2); // "yyyy-MM-dd"
+            String birthplace = (String) model.getValueAt(selectedRow, 3);
+            String address = (String) model.getValueAt(selectedRow, 4);
+            String highschool = (String) model.getValueAt(selectedRow, 5);
+            String category = (String) model.getValueAt(selectedRow, 6);
+
+            // Populate input fields
+            ST_StudentIDField.setText(studentId);
+            ST_NameField.setText(name);
+            ST_BirthplaceField.setText(birthplace);
+            ST_AddressField.setText(address);
+            ST_HighSchoolField.setText(highschool);
+            ST_CategoryField.setSelectedItem(category);
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date birthdayDate = sdf.parse(birthdayStr);
+                ST_BirthdayField.setValue(birthdayDate);
+            } catch (ParseException ex) {
+                System.err.println("Error parsing birthday date from table: " + ex.getMessage());
+            }
+        } else {
+            // If no row is selected (e.g., after deletion or initial state), clear fields
+            ST_ClearActionPerformed(null); // Use the existing clear logic
+        }
+    }
 
     private javax.swing.JButton ST_Add;
     private javax.swing.JLabel ST_Address;
