@@ -1,5 +1,7 @@
 package databaseengine.gui;
 
+import databaseengine.backend.StartDatabase;
+
 public class MainGUI extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainGUI.class.getName());
