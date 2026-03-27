@@ -57,7 +57,7 @@ public class StudentService {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.getStackTrace();
         }
         // student does not exists
         return false;

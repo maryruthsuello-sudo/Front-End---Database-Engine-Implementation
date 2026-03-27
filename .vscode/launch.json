@@ -6,6 +6,13 @@
     "configurations": [
       {
         "type": "java",
+        "name": "MainGUI",
+        "request": "launch",
+        "mainClass": "databaseengine.gui.MainGUI",
+        "projectName": "Front-End---Database-Engine-Implementation_d2d5fb2"
+      },
+      {
+        "type": "java",
         "name": "Main",
         "request": "launch",
         "mainClass": "databaseengine.Main",
