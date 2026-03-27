@@ -1,10 +1,14 @@
 package databaseengine;
 
+import java.sql.Date;
+
 import databaseengine.backend.StartDatabase;
+import databaseengine.backend.model.Student;
 
 public class Main {
     public static void main(String[] args) {
         StartDatabase startDb = new StartDatabase();
-        startDb.getDb().getStudent().viewStudents();
+        System.out.println(startDb.getDb().getStudent().createStudent(new Student("May", Date.valueOf("2000-11-11"), "Manila", "Bahay", "School", "Regular")));
+        
     }
 }
