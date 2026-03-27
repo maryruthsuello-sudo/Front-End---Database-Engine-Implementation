@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "java",
+        "name": "Main",
+        "request": "launch",
+        "mainClass": "databaseengine.Main",
+        "projectName": "Front-End---Database-Engine-Implementation_a9e4584c"
+      },
+      {
+        "type": "java",
+        "name": "MainGUI",
+        "request": "launch",
+        "mainClass": "databaseengine.gui.MainGUI",
+        "projectName": "Front-End---Database-Engine-Implementation_a9e4584c"
+      },
+      {
+        "type": "java",
+        "name": "StartDatabase",
+        "request": "launch",
+        "mainClass": "databaseengine.backend.StartDatabase",
+        "projectName": "Front-End---Database-Engine-Implementation_a9e4584c"
+      },
+      {
+        "type": "java",
+        "name": "StartDatabase",
+        "request": "launch",
+        "mainClass": "databaseengine.backend.StartDatabase",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
+      },
+      {
+        "type": "java",
+        "name": "Launch StartDatabase",
+        "request": "launch",
+        "mainClass": "databaseengine.backend.StartDatabase",
+        "projectName": "databaseengine",
+        "vmArgs": "-cp \"databaseengine/backend/lib/postgresql-42.7.1.jar;databaseengine/out\"",
+        "classPaths": [
+          "${workspaceFolder}/databaseengine/out",
+          "${workspaceFolder}/databaseengine/backend/lib/postgresql-42.7.10.jar"
+        ]
+      }
+    ]
+}
