@@ -1,34 +1,37 @@
 package databaseengine.backend.model;
 
 public class Section {
-    private int sectionId;
-    private int courseId;
-    private String instructor;
-    private String schoolYear;
-    private String term;
-    private String schedule;
+    private String courseYear;
+    private String subjectCode;
+    private int noOfStudents;
 
-    public Section(int courseId, String instructor, String schoolYear, String term, String schedule) {
-        this.courseId = courseId;
-        this.instructor = instructor;
-        this.schoolYear = schoolYear;
-        this.term = term;
-        this.schedule = schedule;
+    public Section(String courseYear, String subjectCode, int noOfStudents) {
+        this.courseYear = courseYear;
+        this.subjectCode = subjectCode;
+        this.noOfStudents = noOfStudents;
     }
 
-    public Section(int sectionId, int courseId, String instructor, String schoolYear, String term, String schedule) {
-        this.sectionId = sectionId;
-        this.courseId = courseId;
-        this.instructor = instructor;
-        this.schoolYear = schoolYear;
-        this.term = term;
-        this.schedule = schedule;
+    public String getCourseYear() {
+        return courseYear;
     }
 
-    public int getSectionId() { return sectionId; }
-    public int getCourseId() { return courseId; }
-    public String getInstructor() { return instructor; }
-    public String getSchoolYear() { return schoolYear; }
-    public String getTerm() { return term; }
-    public String getSchedule() { return schedule; }
+    public String getSubjectCode() {
+        return subjectCode;
+    }
+
+    public int getNoOfStudents() {
+        return noOfStudents;
+    }
+
+    public void setCourseYear(String courseYear) {
+        this.courseYear = courseYear;
+    }
+
+    public void setSubjectCode(String subjectCode) {
+        this.subjectCode = subjectCode;
+    }
+
+    public void setNoOfStudents(int noOfStudents) {
+        this.noOfStudents = noOfStudents;
+    }
 }

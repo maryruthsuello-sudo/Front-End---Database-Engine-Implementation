@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class TORService {
     private final Connection connect;
@@ -16,10 +16,37 @@ public class TORService {
         this.connect = connect;
     }
 
+    // call to display TOR records
+    public ArrayList<TOR> viewTor() {
+        ArrayList<TOR> list = new ArrayList<>();
+
+        String sql = """
+            SELECT t.student_id, s.student_name, t.date_completed
+            FROM tor t
+            JOIN student s ON t.student_id = s.student_id
+        """;
+
+        try (PreparedStatement ps = connect.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(TOR.forDisplay(
+                    rs.getInt("student_id"),
+                    rs.getString("student_name"),
+                    rs.getDate("date_completed")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     // call to generate tor
     public boolean generateTor(TOR tor) {
         if (findTor(tor.getStudentId())) {
-            System.out.println("TOR already exists.");
             return false;
         }
 
@@ -53,28 +80,5 @@ public class TORService {
         }
 
         return false;
-    }
-
-    // call to  display TOR records
-    public List<TOR> viewTor() {
-        List<TOR> list = new ArrayList<>();
-
-        String sql = "SELECT student_id, date_completed FROM tor";
-
-        try (PreparedStatement ps = connect.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(new TOR(
-                    rs.getInt("student_id"),
-                    rs.getDate("date_completed")
-                ));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return list;
     }
 }
