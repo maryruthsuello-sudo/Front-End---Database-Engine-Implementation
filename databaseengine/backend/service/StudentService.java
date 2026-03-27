@@ -30,11 +30,17 @@ public class StudentService {
                 pStatement.setString(5, newStudent.getCategory());
                 pStatement.setString(6, newStudent.getBirthPlace());
 
+                int affectedRow = pStatement.executeUpdate();
+
+                if (affectedRow > 0){
+                    // student successfully created
+                    return true;
+                }
+
             } catch (SQLException e){
                 e.getStackTrace();
             }
-            // student successfully created
-            return true;
+            
         }
         // student not created
         return false;
@@ -46,12 +52,14 @@ public class StudentService {
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             
-            if (rs == null) return true; // student does not exist
+            if (rs.next()) {
+                return true; // student does exists
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // student already exist
+        // student does not exists
         return false;
     }
 
