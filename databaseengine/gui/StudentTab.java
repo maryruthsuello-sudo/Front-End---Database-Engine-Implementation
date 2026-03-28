@@ -10,6 +10,7 @@ import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import databaseengine.backend.Database;
 import databaseengine.backend.model.Student;
 
@@ -218,7 +219,7 @@ public class StudentTab extends javax.swing.JPanel {
             new Object[][] {}, // start empty
             new String[] {"ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"}
         ));
-
+        
         ST_RightScrollPane.setViewportView(ST_Table);
 
         javax.swing.GroupLayout ST_RightPanelLayout = new javax.swing.GroupLayout(ST_RightPanel);

@@ -12,7 +12,7 @@ public class StartDatabase {
   
     private void start(){
         String password = "AKOSICYAN69"; // change kung anong password nilagay sa postgres
-          String dbName = "University_of_Suello_Activity"; // change kung ano name ng database sa postgres
+          String dbName = "Student_Records"; // change kung ano name ng database sa postgres
           Connection connect = null;
 
           try{
