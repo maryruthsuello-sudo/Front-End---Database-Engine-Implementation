@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
 
 public class SectionService {
     private final Connection connect;
@@ -15,26 +15,38 @@ public class SectionService {
         this.connect = connect;
     }
 
-    public void viewSection(){ 
-        try (Statement statement = connect.createStatement()) { 
-            ResultSet section = statement.executeQuery("SELECT * FROM sectn;"); 
-            while (section.next()) { 
-                String courseYr = section.getString("course_year"); 
-                int noOfStudents = section.getInt("no_of_students"); 
-                String subjectCode = section.getString("subject_code"); 
-                Section s = new Section(courseYr, subjectCode, noOfStudents); 
-                System.out.println("COURSE YEAR = " + s.getCourseYear()); 
-                System.out.println("NO OF STUDENTS = " + s.getNoOfStudents()); 
-                System.out.println("SUBJECT CODE = " + s.getSubjectCode()); 
-                System.out.println(); 
+    // call to display section records
+    public ArrayList<Section> viewSection(){ 
+        ArrayList<Section> sections = new ArrayList<>();
+        String sql = "SELECT course_year, subject_code, no_of_students FROM sectn";
+        
+        try (
+            PreparedStatement statement = connect.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery()
+        ) { 
+            while (rs.next()) { 
+                Section section = new Section(
+                    rs.getString("course_year"),
+                    rs.getString("subject_code"),
+                    rs.getInt("no_of_students")
+                ); 
+
+                sections.add(section);
             } 
-            section.close(); 
+
         } catch (SQLException e) { 
             e.printStackTrace(); 
         } 
+        return sections;
     }
 
-    public void createSection(Section newSection) {
+    // call to create section
+    public boolean createSection(Section newSection) {
+        if (findSection(newSection.getCourseYear(), newSection.getSubjectCode())) {
+            System.out.println("Section already exists.");
+            return false;
+        }
+
         String sql = "INSERT INTO sectn (course_year, no_of_students, subject_code) VALUES (?, ?, ?)";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
@@ -42,18 +54,17 @@ public class SectionService {
             pStatement.setInt(2, newSection.getNoOfStudents());
             pStatement.setString(3, newSection.getSubjectCode());
 
-            int affectedRows = pStatement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Creating section failed, no rows affected.");
-            }
+            return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
-    public void updateSection(Section updateSection) {
+    // call to update section
+    public boolean updateSection(Section updateSection) {
         String sql = "UPDATE sectn SET no_of_students = ? WHERE course_year = ? AND subject_code = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
@@ -61,39 +72,33 @@ public class SectionService {
             pStatement.setString(2, updateSection.getCourseYear());
             pStatement.setString(3, updateSection.getSubjectCode());
 
-            int affectedRows = pStatement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Updating section failed, no rows affected.");
-            }
-
-            System.out.println("Section updated successfully.");
+            return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
-    public void deleteSection(Section deleteSection){
+    // call to delete section
+    public boolean deleteSection(Section deleteSection){
         String sql = "DELETE FROM sectn WHERE course_year = ? AND subject_code = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
             pStatement.setString(1, deleteSection.getCourseYear());
             pStatement.setString(2, deleteSection.getSubjectCode());
 
-            int affectedRows = pStatement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Deleting section failed, no rows affected.");
-            }
-
-            System.out.println("Section deleted successfully.");
+            return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
+    // call to find section
     public boolean findSection(String courseYear, String subjectCode) {
         String sql = "SELECT 1 FROM sectn WHERE course_year = ? AND subject_code = ?";
 
