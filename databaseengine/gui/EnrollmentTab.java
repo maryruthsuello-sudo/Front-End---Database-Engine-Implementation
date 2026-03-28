@@ -1,12 +1,29 @@
 package databaseengine.gui;
 
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
+
 public class EnrollmentTab extends javax.swing.JPanel {
 
     public EnrollmentTab() {
         initComponents();
+        
+        // Add ListSelectionListener to the table for synchronization
+        ET_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    ET_TableSelectionChanged(e);
+                }
+            }
+        });
     }
-
-    
 
     private void initComponents() {
 
@@ -15,10 +32,13 @@ public class EnrollmentTab extends javax.swing.JPanel {
         ET_Program = new javax.swing.JLabel();
         ET_SchoolYear = new javax.swing.JLabel();
         ET_DateAdmitted = new javax.swing.JLabel();
-        ET_StudentField = new javax.swing.JComboBox<>();
+        ET_StudentField = new javax.swing.JTextField();
         ET_ProgramField = new javax.swing.JComboBox<>();
         ET_SchoolYearField = new javax.swing.JTextField();
-        ET_DateAdmittedField = new javax.swing.JSpinner();
+        ET_DateAdmittedField = new JSpinner(new javax.swing.SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(ET_DateAdmittedField, "yyyy-MM-dd");
+        ET_DateAdmittedField.setEditor(dateEditor);
+        ET_DateAdmittedField.setValue(new Date());
         ET_Add = new javax.swing.JButton();
         ET_Update = new javax.swing.JButton();
         ET_Delete = new javax.swing.JButton();
@@ -48,14 +68,12 @@ public class EnrollmentTab extends javax.swing.JPanel {
         ET_DateAdmitted.setText("Date Admitted");
 
         ET_StudentField.setBackground(new java.awt.Color(250, 247, 245));
-        ET_StudentField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mary Suello", "John Doe", "Mark Santos", "Anna Reyes", "Paul Garcia", "Nina Lopez", "Chris Tan", "Angel Cruz", "Leo Ramos", "Kate Flores", "Ryan Lim", "Joy Dela Cruz", "Kevin Ong", "Liza Gomez", "James Bautista", "Mia Castillo", "Daniel Perez", "Sophia Navarro", "Ethan Villanueva", "Chloe Rivera" }));
 
         ET_ProgramField.setBackground(new java.awt.Color(250, 247, 245));
         ET_ProgramField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Bachelor of Science in Computer Science", "Bachelor of Science in Information Technology", "Bachelor of Science in Information Systems" }));
 
-        ET_SchoolYearField.setEditable(false);
         ET_SchoolYearField.setBackground(new java.awt.Color(250, 247, 245));
-        ET_SchoolYearField.setText("read-only / auto");
+        ET_SchoolYearField.setText("2025-2026");
 
         ET_Add.setBackground(new java.awt.Color(210, 180, 140));
         ET_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
@@ -135,17 +153,17 @@ public class EnrollmentTab extends javax.swing.JPanel {
 
         ET_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        ET_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
+        ET_Table.setModel(new DefaultTableModel(
+            new Object [][] {},
             new String [] {
                 "Student", "Program", "School Year", "Date Admitted"
             }
         ));
+        ET_Table.getColumnModel().getColumn(0).setPreferredWidth(180); // Student
+        ET_Table.getColumnModel().getColumn(1).setPreferredWidth(400); // Program
+        ET_Table.getColumnModel().getColumn(2).setPreferredWidth(120); // School Year
+        ET_Table.getColumnModel().getColumn(3).setPreferredWidth(160); // Date Admitted
+
         ET_RightScrollPane.setViewportView(ET_Table);
 
         javax.swing.GroupLayout ET_RightPanelLayout = new javax.swing.GroupLayout(ET_RightPanel);
@@ -188,20 +206,95 @@ public class EnrollmentTab extends javax.swing.JPanel {
     }// </editor-fold>                        
 
     private void ET_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        // TODO add your handling code here:
+        String student = ET_StudentField.getText().trim();
+        if (student.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String program = (String) ET_ProgramField.getSelectedItem();
+        String schoolYear = ET_SchoolYearField.getText();
+        
+        Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateAdmitted = sdf.format(dateAdmittedVal);
+
+        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+        model.addRow(new Object[]{student, program, schoolYear, dateAdmitted});
+
+        JOptionPane.showMessageDialog(this, "Successfully Added!");
+        ET_ClearActionPerformed(null);
     }                                      
 
     private void ET_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
+        int selectedRow = ET_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String student = ET_StudentField.getText().trim();
+        if (student.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String program = (String) ET_ProgramField.getSelectedItem();
+        String schoolYear = ET_SchoolYearField.getText();
+        
+        Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateAdmitted = sdf.format(dateAdmittedVal);
+
+        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+        model.setValueAt(student, selectedRow, 0);
+        model.setValueAt(program, selectedRow, 1);
+        model.setValueAt(schoolYear, selectedRow, 2);
+        model.setValueAt(dateAdmitted, selectedRow, 3);
+        
+        JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }                                         
 
     private void ET_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
+        int row = ET_Table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.");
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+        model.removeRow(row);
+
+        JOptionPane.showMessageDialog(this, "Successfully Deleted!");
+        ET_ClearActionPerformed(null);
     }                                         
 
     private void ET_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        // TODO add your handling code here:
+        ET_StudentField.setText("");
+        ET_ProgramField.setSelectedIndex(0);
+        ET_SchoolYearField.setText("2025-2026");
+        ET_DateAdmittedField.setValue(new Date());
+        ET_Table.clearSelection();
     }                                        
+
+    private void ET_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = ET_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+            
+            ET_StudentField.setText((String) model.getValueAt(selectedRow, 0));
+            ET_ProgramField.setSelectedItem(model.getValueAt(selectedRow, 1));
+            ET_SchoolYearField.setText((String) model.getValueAt(selectedRow, 2));
+            String dateStr = (String) model.getValueAt(selectedRow, 3);
+
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                ET_DateAdmittedField.setValue(sdf.parse(dateStr));
+            } catch (ParseException ex) {
+                System.err.println("Error parsing date: " + ex.getMessage());
+            }
+        }
+    }
 
     private javax.swing.JButton ET_Add;
     private javax.swing.JButton ET_Clear;
@@ -216,7 +309,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
     private javax.swing.JLabel ET_SchoolYear;
     private javax.swing.JTextField ET_SchoolYearField;
     private javax.swing.JLabel ET_Student;
-    private javax.swing.JComboBox<String> ET_StudentField;
+    private javax.swing.JTextField ET_StudentField;
     private javax.swing.JTable ET_Table;
     private javax.swing.JButton ET_Update;
 }
