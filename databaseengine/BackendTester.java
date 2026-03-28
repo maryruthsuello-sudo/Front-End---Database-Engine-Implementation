@@ -10,7 +10,7 @@ public class BackendTester {
     public static void main(String[] args) {
         StartDatabase startDb = new StartDatabase();
         startDb.getDb().getGrade().updateGrade(new Grades(20, new BigDecimal(1.00), "IT101", 5));
-        System.out.println("updated = " + updated);
+        System.out.println("updated = " + );
         startDb.getDb().getGrade().deleteGrade(20, "IT101");
        
         printCompletions(startDb);

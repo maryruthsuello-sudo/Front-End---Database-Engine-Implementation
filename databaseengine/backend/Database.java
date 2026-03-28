@@ -22,11 +22,7 @@ public class Database {
         this.section = new SectionService(connect);
         this.graduate = new GraduateService(connect);
         this.tor = new TORService(connect);
-<<<<<<< HEAD
-        this.grade = new GradesService(connect);
-=======
         this.department = new DepartmentService(connect);
->>>>>>> feat/backend
     }
 
     public StudentService getStudent(){
@@ -45,14 +41,11 @@ public class Database {
         return tor;
     }
 
-<<<<<<< HEAD
     public GradesService getGrade(){
         return grade;
     }
 
-=======
     public DepartmentService getDepartment(){
         return department;
     }
->>>>>>> feat/backend
 }

@@ -10,25 +10,16 @@ import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-<<<<<<< HEAD
-//import databaseengine.backend.Student;
-=======
 
 import databaseengine.backend.Database;
 import databaseengine.backend.model.Student;
->>>>>>> feat/backend
 
 
 public class StudentTab extends javax.swing.JPanel {
 
-<<<<<<< HEAD
-    //private ArrayList<Student> studentList = new ArrayList<>();
-    private int currentID = 1;
-=======
     private ArrayList<Student> studentList;
     private Database db;
     private int currentID = 1;// nde n this need te nagkukusa sha sa db
->>>>>>> feat/backend
 
     public StudentTab(Database db) {
         initComponents();
@@ -288,23 +279,6 @@ public class StudentTab extends javax.swing.JPanel {
         String category = ST_CategoryField.getSelectedItem().toString();
 
         // Create Student object
-<<<<<<< HEAD
-        //Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
-
-        // Add to ArrayList
-        //studentList.add(s);
-
-        // Add to table
-        // model.addRow(new Object[]{
-        //     String.format("REC-%03d", s.getStudentID()),
-        //     s.getStudentName(),
-        //     s.getStudentBirthday(),  // already formatted
-        //     s.getStudentBirthplace(),
-        //     s.getStudentAddress(),
-        //     s.getStudentHighschool(),
-        //     s.getStudentCategory()
-        // });
-=======
     Student s = new Student(
         name,
         java.sql.Date.valueOf(birthday),
@@ -327,7 +301,6 @@ public class StudentTab extends javax.swing.JPanel {
         s.getHighSchool(),
         s.getCategory()
     });
->>>>>>> feat/backend
 
     // Update next ID display
     currentID++;
@@ -359,14 +332,6 @@ public class StudentTab extends javax.swing.JPanel {
         String newCategory = ST_CategoryField.getSelectedItem().toString();
 
         // Update the Student object in the ArrayList
-<<<<<<< HEAD
-//         studentToUpdate.setStudentName(newName);
-//         studentToUpdate.setStudentBirthday(newBirthday);
-//         studentToUpdate.setStudentBirthplace(newBirthplace);
-// studentToUpdate.setStudentAddress(newAddress);
-//         studentToUpdate.setStudentHighschool(newHighschool);
-//         studentToUpdate.setStudentCategory(newCategory);
-=======
         
         studentToUpdate.setName(newName);
         studentToUpdate.setBirthday(java.sql.Date.valueOf(newBirthday));
@@ -374,7 +339,6 @@ public class StudentTab extends javax.swing.JPanel {
         studentToUpdate.setAddress(newAddress);
         studentToUpdate.setHighSchool(newHighschool);
         studentToUpdate.setCategory(newCategory);
->>>>>>> feat/backend
 
         // Update the JTable model with the new values
         DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();

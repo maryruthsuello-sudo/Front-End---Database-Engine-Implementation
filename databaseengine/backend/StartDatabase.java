@@ -11,13 +11,8 @@ public class StartDatabase {
     }
   
     private void start(){
-<<<<<<< HEAD
         String password = "Chuchay_0926"; // change kung anong password nilagay sa postgres
           String dbName = "SuelloUniversity"; // change kung ano name ng database sa postgres
-=======
-        String password = "AKOSICYAN69"; // change kung anong password nilagay sa postgres
-          String dbName = "Student_Records"; // change kung ano name ng database sa postgres
->>>>>>> feat/backend
           Connection connect = null;
 
           try{
