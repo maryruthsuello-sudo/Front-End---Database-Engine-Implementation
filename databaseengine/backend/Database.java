@@ -5,7 +5,10 @@ import java.sql.Connection;
 import databaseengine.backend.service.GradesService;
 import databaseengine.backend.service.GraduateService;
 import databaseengine.backend.service.SectionService;
+import databaseengine.backend.service.CourseService;
 import databaseengine.backend.service.DepartmentService;
+import databaseengine.backend.service.EnrollmentService;
+import databaseengine.backend.service.GradesService;
 import databaseengine.backend.service.StudentService;
 import databaseengine.backend.service.TORService;
 
@@ -15,7 +18,13 @@ public class Database {
     private SectionService section;
     private GraduateService graduate;
     private TORService tor;
+<<<<<<< HEAD
     private GradesService grade;
+=======
+    private EnrollmentService enrollment;
+    private CourseService course;
+    private GradesService grades;
+>>>>>>> main
 
     public Database(Connection connect){
         this.student = new StudentService(connect);
@@ -23,6 +32,9 @@ public class Database {
         this.graduate = new GraduateService(connect);
         this.tor = new TORService(connect);
         this.department = new DepartmentService(connect);
+        this.enrollment = new EnrollmentService(connect);
+        this.course = new CourseService(connect);
+        this.grades = new GradesService(connect);
     }
 
     public StudentService getStudent(){
@@ -47,5 +59,17 @@ public class Database {
 
     public DepartmentService getDepartment(){
         return department;
+    }
+
+    public EnrollmentService getEnrollment(){
+        return enrollment;
+    }
+
+    public CourseService getCourse(){
+        return course;
+    }
+
+    public GradesService getGrades(){
+        return grades;
     }
 }

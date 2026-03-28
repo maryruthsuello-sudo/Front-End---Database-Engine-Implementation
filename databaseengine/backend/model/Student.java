@@ -11,16 +11,7 @@ public class Student {
     private String highSchool;
     private String category;
 
-    /**
-     * Creates a new Student object with the given information.
-     *
-     * @param name       String
-     * @param birthday   Date (sql) used Date.valueOf(YYYY-MM-DD)
-     * @param birthPlace String
-     * @param address    String
-     * @param highSchool String
-     * @param category   String
-     */
+    // for creating new student
     public Student(String name, Date birthday, String birthPlace, String address, String highSchool, String category) {
         this.name = name;
         this.birthday = birthday;
@@ -30,17 +21,7 @@ public class Student {
         this.category = category;
     }
 
-    /**
-     * Extract data from updated information.
-     *
-     * @param id         int
-     * @param name       String
-     * @param birthday   Date (sql)
-     * @param birthPlace String
-     * @param address    String
-     * @param highSchool String
-     * @param category   String
-     */
+    // for updating existing student
     public Student(int id, String name, Date birthday, String birthPlace, String address, String highSchool, String category) {
         this.id = id;
         this.name = name;
