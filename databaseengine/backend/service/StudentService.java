@@ -21,7 +21,7 @@ public class StudentService {
         String sql = "INSERT INTO student (student_name, student_birthday, student_address, student_highschool, student_category, birth_place) "
                + "VALUES (?, ?, ?, ?, ?, ?)";
         
-        if (!findStudent(newStudent.getName())){
+        if (!isStudentExist(newStudent.getName())){
             try (PreparedStatement pStatement = connect.prepareStatement(sql)){
                 pStatement.setString(1, newStudent.getName());
                 pStatement.setDate(2, newStudent.getBirthday());
@@ -41,7 +41,7 @@ public class StudentService {
         return false;
     }
 
-    private boolean findStudent(String name){
+    private boolean isStudentExist(String name){
         String sql = "SELECT * FROM student WHERE student_name = ?";
         try (PreparedStatement stmt = connect.prepareStatement(sql)) {
             stmt.setString(1, name);
