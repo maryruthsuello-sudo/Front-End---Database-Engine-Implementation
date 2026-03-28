@@ -10,16 +10,30 @@ import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+<<<<<<< HEAD
 //import databaseengine.backend.Student;
+=======
+
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Student;
+>>>>>>> feat/backend
 
 
 public class StudentTab extends javax.swing.JPanel {
 
+<<<<<<< HEAD
     //private ArrayList<Student> studentList = new ArrayList<>();
     private int currentID = 1;
+=======
+    private ArrayList<Student> studentList;
+    private Database db;
+    private int currentID = 1;// nde n this need te nagkukusa sha sa db
+>>>>>>> feat/backend
 
-    public StudentTab() {
+    public StudentTab(Database db) {
         initComponents();
+        this.db = db;
+        this.studentList = db.getStudent().getAllStudents();
         ST_StudentIDField.setText(String.format("REC-%03d", currentID));
         
         // Add ListSelectionListener to the table
@@ -214,7 +228,7 @@ public class StudentTab extends javax.swing.JPanel {
             new Object[][] {}, // start empty
             new String[] {"ID", "Name", "Birthday", "Birthplace", "Address", "High School", "Category"}
         ));
-
+        
         ST_RightScrollPane.setViewportView(ST_Table);
 
         javax.swing.GroupLayout ST_RightPanelLayout = new javax.swing.GroupLayout(ST_RightPanel);
@@ -274,6 +288,7 @@ public class StudentTab extends javax.swing.JPanel {
         String category = ST_CategoryField.getSelectedItem().toString();
 
         // Create Student object
+<<<<<<< HEAD
         //Student s = new Student(name, currentID, birthday, birthplace, address, highschool, category);
 
         // Add to ArrayList
@@ -289,10 +304,35 @@ public class StudentTab extends javax.swing.JPanel {
         //     s.getStudentHighschool(),
         //     s.getStudentCategory()
         // });
+=======
+    Student s = new Student(
+        name,
+        java.sql.Date.valueOf(birthday),
+        birthplace,
+        address,
+        highschool,
+        category
+    );
 
-        currentID++;
-        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
-    }                                      
+    // Save to database (ONLY ONCE)
+    db.getStudent().createStudent(s);
+
+    // Add to JTable
+    model.addRow(new Object[]{
+        String.format("REC-%03d", s.getId()),
+        s.getName(),
+        s.getBirthday(),
+        s.getBirthPlace(),
+        s.getAddress(),
+        s.getHighSchool(),
+        s.getCategory()
+    });
+>>>>>>> feat/backend
+
+    // Update next ID display
+    currentID++;
+    ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+    }
 
     private void ST_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
@@ -319,12 +359,22 @@ public class StudentTab extends javax.swing.JPanel {
         String newCategory = ST_CategoryField.getSelectedItem().toString();
 
         // Update the Student object in the ArrayList
+<<<<<<< HEAD
 //         studentToUpdate.setStudentName(newName);
 //         studentToUpdate.setStudentBirthday(newBirthday);
 //         studentToUpdate.setStudentBirthplace(newBirthplace);
 // studentToUpdate.setStudentAddress(newAddress);
 //         studentToUpdate.setStudentHighschool(newHighschool);
 //         studentToUpdate.setStudentCategory(newCategory);
+=======
+        
+        studentToUpdate.setName(newName);
+        studentToUpdate.setBirthday(java.sql.Date.valueOf(newBirthday));
+        studentToUpdate.setBirthPlace(newBirthplace);
+        studentToUpdate.setAddress(newAddress);
+        studentToUpdate.setHighSchool(newHighschool);
+        studentToUpdate.setCategory(newCategory);
+>>>>>>> feat/backend
 
         // Update the JTable model with the new values
         DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();

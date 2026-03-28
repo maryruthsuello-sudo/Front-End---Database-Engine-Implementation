@@ -1,9 +1,24 @@
 package databaseengine.gui;
 
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 public class GradeTab extends javax.swing.JPanel {
 
     public GradeTab() {
         initComponents();
+
+        // Add ListSelectionListener to synchronize table selection with input fields
+        GT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    GT_TableSelectionChanged(e);
+                }
+            }
+        });
     }
 
    
@@ -14,9 +29,9 @@ public class GradeTab extends javax.swing.JPanel {
         GT_SubjectCode = new javax.swing.JLabel();
         GT_Grade = new javax.swing.JLabel();
         GT_Units = new javax.swing.JLabel();
-        GT_StudentField = new javax.swing.JComboBox<>();
-        GT_SubjectCodeField = new javax.swing.JComboBox<>();
-        GT_GradeField = new javax.swing.JSpinner();
+        GT_StudentField = new javax.swing.JTextField();
+        GT_SubjectCodeField = new javax.swing.JTextField();
+        GT_GradeField = new javax.swing.JTextField();
         GT_UnitsField = new javax.swing.JTextField();
         GT_Add = new javax.swing.JButton();
         GT_Update = new javax.swing.JButton();
@@ -32,7 +47,7 @@ public class GradeTab extends javax.swing.JPanel {
 
         GT_Student.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         GT_Student.setForeground(new java.awt.Color(250, 247, 245));
-        GT_Student.setText("Student");
+        GT_Student.setText("Student ID");
 
         GT_SubjectCode.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         GT_SubjectCode.setForeground(new java.awt.Color(250, 247, 245));
@@ -47,14 +62,10 @@ public class GradeTab extends javax.swing.JPanel {
         GT_Units.setText("Units");
 
         GT_StudentField.setBackground(new java.awt.Color(250, 247, 245));
-        GT_StudentField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mary Suello", "John Doe", "Mark Santos", "Anna Reyes", "Paul Garcia", "Nina Lopez", "Chris Tan", "Angel Cruz", "Leo Ramos", "Kate Flores", "Ryan Lim", "Joy Dela Cruz", "Kevin Ong", "Liza Gomez", "James Bautista", "Mia Castillo", "Daniel Perez", "Sophia Navarro", "Ethan Villanueva", "Chloe Rivera" }));
-
         GT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
-        GT_SubjectCodeField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CS101", "CS104", "CS201", "IT101", "IT201", "IT202", "IS101", "IS301", "IS302" }));
+        GT_GradeField.setBackground(new java.awt.Color(250, 247, 245));
 
-        GT_UnitsField.setEditable(false);
         GT_UnitsField.setBackground(new java.awt.Color(250, 247, 245));
-        GT_UnitsField.setText("read-only / auto");
 
         GT_Add.setBackground(new java.awt.Color(210, 180, 140));
         GT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
@@ -135,14 +146,9 @@ public class GradeTab extends javax.swing.JPanel {
         GT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         GT_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
+            new Object [][] {},
             new String [] {
-                "Student", "Subject Code", "Grade", "Units"
+                "Student ID", "Subject Code", "Grade", "Units"
             }
         ));
         GT_RightScrollPane.setViewportView(GT_Table);
@@ -187,33 +193,101 @@ public class GradeTab extends javax.swing.JPanel {
     }// </editor-fold>                        
 
     private void GT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        // TODO add your handling code here:
+        String studentId = GT_StudentField.getText().trim();
+        String subjectCode = GT_SubjectCodeField.getText().trim();
+        String grade = GT_GradeField.getText().trim();
+        String units = GT_UnitsField.getText().trim();
+
+        if (studentId.isEmpty() || subjectCode.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
+        model.addRow(new Object[]{studentId, subjectCode, grade, units});
+
+        JOptionPane.showMessageDialog(this, "Successfully Added!");
+        GT_ClearActionPerformed(null);
     }                                      
 
     private void GT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
+        int selectedRow = GT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String studentId = GT_StudentField.getText().trim();
+        String subjectCode = GT_SubjectCodeField.getText().trim();
+        String grade = GT_GradeField.getText().trim();
+        String units = GT_UnitsField.getText().trim();
+
+        if (studentId.isEmpty() || subjectCode.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
+        model.setValueAt(studentId, selectedRow, 0);
+        model.setValueAt(subjectCode, selectedRow, 1);
+        model.setValueAt(grade, selectedRow, 2);
+        model.setValueAt(units, selectedRow, 3);
+
+        JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }                                         
 
     private void GT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
+        int selectedRow = GT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
+        model.removeRow(selectedRow);
+
+        JOptionPane.showMessageDialog(this, "Successfully Deleted!");
+        GT_ClearActionPerformed(null);
     }                                         
 
     private void GT_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        // TODO add your handling code here:
+        GT_StudentField.setText("");
+        GT_SubjectCodeField.setText("");
+        GT_GradeField.setText("");
+        GT_UnitsField.setText("");
+        GT_Table.clearSelection();
     }                                        
+
+    private void GT_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = GT_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
+            
+            GT_StudentField.setText((String) model.getValueAt(selectedRow, 0));
+            GT_SubjectCodeField.setText((String) model.getValueAt(selectedRow, 1));
+            GT_GradeField.setText((String) model.getValueAt(selectedRow, 2));
+            GT_UnitsField.setText((String) model.getValueAt(selectedRow, 3));
+        } else {
+            // Clear fields if selection is lost
+            GT_StudentField.setText("");
+            GT_SubjectCodeField.setText("");
+            GT_GradeField.setText("");
+            GT_UnitsField.setText("");
+        }
+    }
 
     private javax.swing.JButton GT_Add;
     private javax.swing.JButton GT_Clear;
     private javax.swing.JButton GT_Delete;
     private javax.swing.JLabel GT_Grade;
-    private javax.swing.JSpinner GT_GradeField;
+    private javax.swing.JTextField GT_GradeField;
     private javax.swing.JPanel GT_LeftPanel;
     private javax.swing.JPanel GT_RightPanel;
     private javax.swing.JScrollPane GT_RightScrollPane;
     private javax.swing.JLabel GT_Student;
-    private javax.swing.JComboBox<String> GT_StudentField;
+    private javax.swing.JTextField GT_StudentField;
     private javax.swing.JLabel GT_SubjectCode;
-    private javax.swing.JComboBox<String> GT_SubjectCodeField;
+    private javax.swing.JTextField GT_SubjectCodeField;
     private javax.swing.JTable GT_Table;
     private javax.swing.JLabel GT_Units;
     private javax.swing.JTextField GT_UnitsField;

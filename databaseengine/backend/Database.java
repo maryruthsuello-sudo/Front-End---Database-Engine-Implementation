@@ -5,11 +5,13 @@ import java.sql.Connection;
 import databaseengine.backend.service.GradesService;
 import databaseengine.backend.service.GraduateService;
 import databaseengine.backend.service.SectionService;
+import databaseengine.backend.service.DepartmentService;
 import databaseengine.backend.service.StudentService;
 import databaseengine.backend.service.TORService;
 
 public class Database {
     private StudentService student;
+    private DepartmentService department;
     private SectionService section;
     private GraduateService graduate;
     private TORService tor;
@@ -20,7 +22,11 @@ public class Database {
         this.section = new SectionService(connect);
         this.graduate = new GraduateService(connect);
         this.tor = new TORService(connect);
+<<<<<<< HEAD
         this.grade = new GradesService(connect);
+=======
+        this.department = new DepartmentService(connect);
+>>>>>>> feat/backend
     }
 
     public StudentService getStudent(){
@@ -39,8 +45,14 @@ public class Database {
         return tor;
     }
 
+<<<<<<< HEAD
     public GradesService getGrade(){
         return grade;
     }
 
+=======
+    public DepartmentService getDepartment(){
+        return department;
+    }
+>>>>>>> feat/backend
 }
