@@ -6,12 +6,13 @@ public class CourseTab extends javax.swing.JPanel {
         initComponents();
     }
 
-    
+    @SuppressWarnings("unchecked")
 
     private void initComponents() {
 
         CT_LeftPanel = new javax.swing.JPanel();
         CT_Program = new javax.swing.JLabel();
+        CT_StudentID = new javax.swing.JLabel();
         CT_SubjectCode = new javax.swing.JLabel();
         CT_Units = new javax.swing.JLabel();
         CT_DescriptiveTitle = new javax.swing.JLabel();
@@ -20,6 +21,7 @@ public class CourseTab extends javax.swing.JPanel {
         CT_Term = new javax.swing.JLabel();
         CT_DateSubmitted = new javax.swing.JLabel();
         CT_ProgramField = new javax.swing.JComboBox<>();
+        CT_StudentIDField = new javax.swing.JTextField();
         CT_SubjectCodeField = new javax.swing.JComboBox<>();
         CT_UnitsField = new javax.swing.JTextField();
         CT_DescriptiveTitleField = new javax.swing.JTextField();
@@ -42,6 +44,10 @@ public class CourseTab extends javax.swing.JPanel {
         CT_Program.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         CT_Program.setForeground(new java.awt.Color(250, 247, 245));
         CT_Program.setText("Program");
+
+        CT_StudentID.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        CT_StudentID.setForeground(new java.awt.Color(250, 247, 245));
+        CT_StudentID.setText("Student ID");
 
         CT_SubjectCode.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         CT_SubjectCode.setForeground(new java.awt.Color(250, 247, 245));
@@ -73,6 +79,9 @@ public class CourseTab extends javax.swing.JPanel {
 
         CT_ProgramField.setBackground(new java.awt.Color(250, 247, 245));
         CT_ProgramField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Bachelor of Science in Computer Science", "Bachelor of Science in Information Technology", "Bachelor of Science in Information Systems" }));
+
+        CT_StudentIDField.setBackground(new java.awt.Color(250, 247, 245));
+        CT_StudentIDField.addActionListener(this::CT_StudentIDFieldActionPerformed);
 
         CT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
         CT_SubjectCodeField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CS101", "CS104", "CS201", "IT101", "IT201", "IT202", "IS101", "IS301", "IS302" }));
@@ -136,54 +145,60 @@ public class CourseTab extends javax.swing.JPanel {
                             .addComponent(CT_Grade, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(CT_DescriptiveTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(CT_Units, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(CT_SubjectCode, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(CT_StudentID, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(CT_Program, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(CT_DescriptiveTitleField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                             .addComponent(CT_TimeField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                             .addComponent(CT_TermField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CT_DateSubmittedField)
                             .addComponent(CT_ProgramField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(CT_UnitsField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(CT_GradeField)
+                            .addComponent(CT_DateSubmittedField)
+                            .addComponent(CT_SubjectCode, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(CT_SubjectCodeField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CT_GradeField))))
+                            .addComponent(CT_StudentIDField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         CT_LeftPanelLayout.setVerticalGroup(
             CT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(CT_LeftPanelLayout.createSequentialGroup()
-                .addContainerGap(13, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(CT_Program)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_ProgramField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addComponent(CT_ProgramField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(CT_StudentID)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(CT_StudentIDField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_SubjectCode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_SubjectCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addComponent(CT_SubjectCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(CT_Units)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_UnitsField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addComponent(CT_UnitsField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_DescriptiveTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_DescriptiveTitleField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CT_DescriptiveTitleField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_Grade)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_GradeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addComponent(CT_GradeField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_Time)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_TimeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CT_TimeField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_Term)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_TermField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CT_TermField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CT_DateSubmitted)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CT_DateSubmittedField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(CT_DateSubmittedField, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(CT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(CT_Add)
                     .addComponent(CT_Update)
@@ -196,13 +211,13 @@ public class CourseTab extends javax.swing.JPanel {
 
         CT_Table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Program", "Subject Code", "Units", "Title", "Grade", "Time", "Term", "Date Submitted"
+                "Program", "Student ID", "Subject Code", "Units", "Title", "Grade", "Time", "Term", "Date Submitted"
             }
         ));
         CT_RightScrollPane.setViewportView(CT_Table);
@@ -270,6 +285,10 @@ public class CourseTab extends javax.swing.JPanel {
         // TODO add your handling code here:
     }                                             
 
+    private void CT_StudentIDFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                  
+        // TODO add your handling code here:
+    }                                                 
+
     private javax.swing.JButton CT_Add;
     private javax.swing.JButton CT_Clear;
     private javax.swing.JLabel CT_DateSubmitted;
@@ -284,6 +303,8 @@ public class CourseTab extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> CT_ProgramField;
     private javax.swing.JPanel CT_RightPanel;
     private javax.swing.JScrollPane CT_RightScrollPane;
+    private javax.swing.JLabel CT_StudentID;
+    private javax.swing.JTextField CT_StudentIDField;
     private javax.swing.JLabel CT_SubjectCode;
     private javax.swing.JComboBox<String> CT_SubjectCodeField;
     private javax.swing.JTable CT_Table;
