@@ -2,13 +2,13 @@ package databaseengine.backend.model;
 
 import java.math.BigDecimal;
 
-public class Completion {
+public class Grades {
     private int studentId;
     private BigDecimal grade;
     private String subjectCode;
     private int units;
 
-    public Completion(int studentId, BigDecimal grade, String subjectCode, int units) {
+    public Grades(int studentId, BigDecimal grade, String subjectCode, int units) {
         this.studentId = studentId;
         this.grade = grade;
         this.subjectCode = subjectCode;

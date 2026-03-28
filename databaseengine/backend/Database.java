@@ -2,6 +2,7 @@ package databaseengine.backend;
 
 import java.sql.Connection;
 
+import databaseengine.backend.service.GradesService;
 import databaseengine.backend.service.GraduateService;
 import databaseengine.backend.service.SectionService;
 import databaseengine.backend.service.StudentService;
@@ -12,12 +13,14 @@ public class Database {
     private SectionService section;
     private GraduateService graduate;
     private TORService tor;
+    private GradesService grade;
 
     public Database(Connection connect){
         this.student = new StudentService(connect);
         this.section = new SectionService(connect);
         this.graduate = new GraduateService(connect);
         this.tor = new TORService(connect);
+        this.grade = new GradesService(connect);
     }
 
     public StudentService getStudent(){
@@ -34,6 +37,10 @@ public class Database {
 
     public TORService getTOR(){
         return tor;
+    }
+
+    public GradesService getGrade(){
+        return grade;
     }
 
 }
