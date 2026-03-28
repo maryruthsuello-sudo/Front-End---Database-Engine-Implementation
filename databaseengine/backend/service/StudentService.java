@@ -30,12 +30,7 @@ public class StudentService {
                 pStatement.setString(5, newStudent.getCategory());
                 pStatement.setString(6, newStudent.getBirthPlace());
 
-                int affectedRow = pStatement.executeUpdate();
-
-                if (affectedRow > 0){
-                    // student successfully created
-                    return true;
-                }
+                return pStatement.executeUpdate() > 0;
 
             } catch (SQLException e){
                 e.getStackTrace();
@@ -77,9 +72,7 @@ public class StudentService {
             pStatement.setString(6, student.getBirthPlace());
             pStatement.setInt(7, student.getId());
 
-            int affectedRow = pStatement.executeUpdate();
-
-            if (affectedRow > 0) return true; // not updated
+            return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,12 +87,9 @@ public class StudentService {
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)){
             pStatement.setInt(1, id);
-            int affectedRow = pStatement.executeUpdate();
-
-            if (affectedRow > 0){
-                // deleted
-                return true;
-            }
+            
+            return pStatement.executeUpdate() > 0;
+            
         } catch (SQLException e){
             e.printStackTrace();
         }
@@ -133,5 +123,4 @@ public class StudentService {
         }
         return students;
     }
-
 }
