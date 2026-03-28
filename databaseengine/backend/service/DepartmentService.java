@@ -53,11 +53,7 @@ public class DepartmentService {
             pStatement.setString(5, department.getCollege());
             pStatement.setString(6, department.getProgram()); // WHERE prog = ?
 
-            int affectedRow = pStatement.executeUpdate();
-
-            if (affectedRow > 0) {
-                return true; // updated successfully
-            }
+            return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
