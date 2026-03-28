@@ -1,12 +1,30 @@
 package databaseengine.gui;
 
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 public class SectionTab extends javax.swing.JPanel {
+
+    // In-memory list to store sections temporarily (no DB yet)
+    private ArrayList<String[]> sectionList = new ArrayList<>();
 
     public SectionTab() {
         initComponents();
+
+        // Populate fields when a row is selected — same as StudentTab
+        SeT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    SeT_TableSelectionChanged(e);
+                }
+            }
+        });
     }
-
-
 
     private void initComponents() {
 
@@ -16,7 +34,7 @@ public class SectionTab extends javax.swing.JPanel {
         SeT_SubjectCode = new javax.swing.JLabel();
         SeT_CourseYearField = new javax.swing.JComboBox<>();
         SeT_NumOfStudentsField = new javax.swing.JTextField();
-        SeT_SubjectCodeField = new javax.swing.JComboBox<>();
+        SeT_SubjectCodeField = new javax.swing.JTextField();
         SeT_Add = new javax.swing.JButton();
         SeT_Update = new javax.swing.JButton();
         SeT_Delete = new javax.swing.JButton();
@@ -29,45 +47,57 @@ public class SectionTab extends javax.swing.JPanel {
 
         SeT_LeftPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        SeT_CourseYear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_CourseYear.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_CourseYear.setForeground(new java.awt.Color(250, 247, 245));
         SeT_CourseYear.setText("Course Year");
 
-        SeT_NumOfStudents.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_NumOfStudents.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_NumOfStudents.setForeground(new java.awt.Color(250, 247, 245));
         SeT_NumOfStudents.setText("Number of Students");
 
-        SeT_SubjectCode.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_SubjectCode.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_SubjectCode.setForeground(new java.awt.Color(250, 247, 245));
         SeT_SubjectCode.setText("Subject Code");
 
         SeT_CourseYearField.setBackground(new java.awt.Color(250, 247, 245));
-        SeT_CourseYearField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1st Year", "2nd Year", "3rd Year", "4th Year" }));
+        SeT_CourseYearField.setModel(new javax.swing.DefaultComboBoxModel<>(
+            new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year"}));
 
-        SeT_NumOfStudentsField.setEditable(false);
+        // Integer-only filter for Number of Students
         SeT_NumOfStudentsField.setBackground(new java.awt.Color(250, 247, 245));
-        SeT_NumOfStudentsField.setText("read-only / auto");
+        ((javax.swing.text.PlainDocument) SeT_NumOfStudentsField.getDocument())
+            .setDocumentFilter(new javax.swing.text.DocumentFilter() {
+                @Override
+                public void insertString(FilterBypass fb, int offset, String string,
+                        javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                    if (string.matches("\\d+")) super.insertString(fb, offset, string, attr);
+                }
+                @Override
+                public void replace(FilterBypass fb, int offset, int length, String string,
+                        javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                    if (string.matches("\\d*")) super.replace(fb, offset, length, string, attr);
+                }
+            });
 
         SeT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
-        SeT_SubjectCodeField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CS101", "CS104", "CS201", "IT101", "IT201", "IT202", "IS101", "IS301", "IS302" }));
 
         SeT_Add.setBackground(new java.awt.Color(210, 180, 140));
-        SeT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_Add.setText("Add");
         SeT_Add.addActionListener(this::SeT_AddActionPerformed);
 
         SeT_Update.setBackground(new java.awt.Color(210, 180, 140));
-        SeT_Update.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_Update.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_Update.setText("Update");
         SeT_Update.addActionListener(this::SeT_UpdateActionPerformed);
 
         SeT_Delete.setBackground(new java.awt.Color(210, 180, 140));
-        SeT_Delete.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_Delete.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_Delete.setText("Delete");
         SeT_Delete.addActionListener(this::SeT_DeleteActionPerformed);
 
         SeT_Clear.setBackground(new java.awt.Color(210, 180, 140));
-        SeT_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        SeT_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16));
         SeT_Clear.setText("Clear");
         SeT_Clear.addActionListener(this::SeT_ClearActionPerformed);
 
@@ -124,15 +154,8 @@ public class SectionTab extends javax.swing.JPanel {
         SeT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         SeT_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Course Year", "Number of Students", "Subject Code"
-            }
+            new Object[][]{},
+            new String[]{"Course Year", "Number of Students", "Subject Code"}
         ));
         SeT_RightScrollPane.setViewportView(SeT_Table);
 
@@ -173,23 +196,112 @@ public class SectionTab extends javax.swing.JPanel {
                     .addComponent(SeT_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }
 
-    private void SeT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                        
-        // TODO add your handling code here:
-    }                                       
+    // ADD — validates fields, checks for duplicate, adds to list and table
+    private void SeT_AddActionPerformed(java.awt.event.ActionEvent evt) {
+        String courseYear = SeT_CourseYearField.getSelectedItem().toString();
+        String numOfStudents = SeT_NumOfStudentsField.getText().trim();
+        String subjectCode = SeT_SubjectCodeField.getText().trim();
 
-    private void SeT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        // TODO add your handling code here:
-    }                                          
+        if (numOfStudents.isEmpty() || subjectCode.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    private void SeT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        // TODO add your handling code here:
-    }                                          
+        // Check duplicate: same Course Year + Subject Code
+        for (String[] section : sectionList) {
+            if (section[0].equals(courseYear) && section[2].equals(subjectCode)) {
+                JOptionPane.showMessageDialog(this,
+                    "A section with the same Course Year and Subject Code already exists.",
+                    "Duplicate Entry", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
 
-    private void SeT_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
-    }                                         
+        // Add to in-memory list
+        sectionList.add(new String[]{courseYear, numOfStudents, subjectCode});
+
+        // Add to table
+        DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+        model.addRow(new Object[]{courseYear, numOfStudents, subjectCode});
+
+        SeT_ClearActionPerformed(evt);
+    }
+
+    // UPDATE — updates selected row in list and table
+    private void SeT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = SeT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String courseYear = SeT_CourseYearField.getSelectedItem().toString();
+        String numOfStudents = SeT_NumOfStudentsField.getText().trim();
+        String subjectCode = SeT_SubjectCodeField.getText().trim();
+
+        if (numOfStudents.isEmpty() || subjectCode.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Update in-memory list
+        sectionList.set(selectedRow, new String[]{courseYear, numOfStudents, subjectCode});
+
+        // Update table
+        DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+        model.setValueAt(courseYear, selectedRow, 0);
+        model.setValueAt(numOfStudents, selectedRow, 1);
+        model.setValueAt(subjectCode, selectedRow, 2);
+
+        JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // DELETE — removes selected row from list and table
+    private void SeT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = SeT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Remove from in-memory list
+        sectionList.remove(selectedRow);
+
+        // Remove from table
+        DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+        model.removeRow(selectedRow);
+
+        JOptionPane.showMessageDialog(this, "Deleted successfully!", "Delete Success", JOptionPane.INFORMATION_MESSAGE);
+        SeT_ClearActionPerformed(evt);
+    }
+
+    // CLEAR — resets all fields
+    private void SeT_ClearActionPerformed(java.awt.event.ActionEvent evt) {
+        SeT_NumOfStudentsField.setText("");
+        SeT_SubjectCodeField.setText("");
+        SeT_CourseYearField.setSelectedIndex(0);
+        SeT_Table.clearSelection();
+    }
+
+    // ROW SELECTION — clicking a row fills the fields (same as StudentTab)
+    private void SeT_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = SeT_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+
+            String courseYear    = (String) model.getValueAt(selectedRow, 0);
+            String numOfStudents = (String) model.getValueAt(selectedRow, 1);
+            String subjectCode   = (String) model.getValueAt(selectedRow, 2);
+
+            SeT_CourseYearField.setSelectedItem(courseYear);
+            SeT_NumOfStudentsField.setText(numOfStudents);
+            SeT_SubjectCodeField.setText(subjectCode);
+        } else {
+            SeT_ClearActionPerformed(null);
+        }
+    }
 
     private javax.swing.JButton SeT_Add;
     private javax.swing.JButton SeT_Clear;
@@ -202,7 +314,7 @@ public class SectionTab extends javax.swing.JPanel {
     private javax.swing.JPanel SeT_RightPanel;
     private javax.swing.JScrollPane SeT_RightScrollPane;
     private javax.swing.JLabel SeT_SubjectCode;
-    private javax.swing.JComboBox<String> SeT_SubjectCodeField;
+    private javax.swing.JTextField SeT_SubjectCodeField;
     private javax.swing.JTable SeT_Table;
     private javax.swing.JButton SeT_Update;
 }

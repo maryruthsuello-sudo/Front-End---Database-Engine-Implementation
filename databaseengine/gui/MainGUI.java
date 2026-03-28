@@ -1,8 +1,12 @@
 package databaseengine.gui;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.StartDatabase;
+
 public class MainGUI extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainGUI.class.getName());
+    
 
     public MainGUI() {
         initComponents();
@@ -10,12 +14,14 @@ public class MainGUI extends javax.swing.JFrame {
    
 
     private void initComponents() {
+        StartDatabase startDb = new StartDatabase();
+        Database db = startDb.getDb();
 
         MainPanel = new javax.swing.JPanel();
         TopPanel = new javax.swing.JPanel();
         Title = new javax.swing.JLabel();
         Tabs = new javax.swing.JTabbedPane();
-        ST = new databaseengine.gui.StudentTab();
+        ST = new databaseengine.gui.StudentTab(db);
         PT = new databaseengine.gui.ProgramTab();
         CT = new databaseengine.gui.CourseTab();
         ET = new databaseengine.gui.EnrollmentTab();
