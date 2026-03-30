@@ -1,14 +1,27 @@
 package databaseengine.gui;
 
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Department;
+
 public class ProgramTab extends javax.swing.JPanel {
 
-    public ProgramTab() {
+    private ArrayList<Department> departmentList;
+    private Database db;
+
+    public ProgramTab(Database db) {
         initComponents();
+        this.db = db;
+
+        // Load existing records from the database into the list and table
+        this.departmentList = db.getDepartment().getAllDepartments();
+        loadTableFromList();
 
         // Add selection listener to the table to sync with input fields
         PT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -19,6 +32,22 @@ public class ProgramTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    // Populates the JTable from the departmentList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
+        model.setRowCount(0); // clear existing rows
+        for (Department d : departmentList) {
+            model.addRow(new Object[]{
+                d.getDeptCollege(),
+                d.getProgram(),
+                d.getDeptHead(),
+                d.getDean(),
+                d.getInstructor(),
+                d.getCourse()
+            });
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -221,9 +250,9 @@ public class ProgramTab extends javax.swing.JPanel {
                     .addComponent(PT_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }// </editor-fold>
 
-    private void PT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
+    private void PT_AddActionPerformed(java.awt.event.ActionEvent evt) {
         String deptCollege = (String) PT_ProgramField1.getSelectedItem();
         String program = (String) PT_ProgramField.getSelectedItem();
         String deptHead = (String) PT_InstructorField.getSelectedItem();
@@ -236,44 +265,94 @@ public class ProgramTab extends javax.swing.JPanel {
             return;
         }
 
+        // Build Department object
+        Department newDept = new Department(deptCollege, program, deptHead, dean, instructor, course);
+
+        // Save to database
+        boolean success = db.getDepartment().createDepartment(newDept);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to add record. It may already exist.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        departmentList.add(newDept);
         DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
         model.addRow(new Object[]{deptCollege, program, deptHead, dean, instructor, course});
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         PT_Clear();
-    }                                      
+    }
 
-    private void PT_EditActionPerformed(java.awt.event.ActionEvent evt) {                                        
+    private void PT_EditActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = PT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to edit.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        String deptCollege = (String) PT_ProgramField1.getSelectedItem();
+        String program = (String) PT_ProgramField.getSelectedItem();
+        String deptHead = (String) PT_InstructorField.getSelectedItem();
+        String dean = PT_DeanField.getText().trim();
+        String instructor = PT_DeptHeadField.getText().trim();
+        String course = (String) PT_DeptHeadField1.getSelectedItem();
+
+        if (dean.isEmpty() || instructor.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all text fields.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Build updated Department object
+        Department updatedDept = new Department(deptCollege, program, deptHead, dean, instructor, course);
+
+        // Update in database
+        boolean success = db.getDepartment().updateDepartment(updatedDept);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update record.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list
+        departmentList.set(selectedRow, updatedDept);
+
+        // Update table
         DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
-        model.setValueAt(PT_ProgramField1.getSelectedItem(), selectedRow, 0);
-        model.setValueAt(PT_ProgramField.getSelectedItem(), selectedRow, 1);
-        model.setValueAt(PT_InstructorField.getSelectedItem(), selectedRow, 2);
-        model.setValueAt(PT_DeanField.getText(), selectedRow, 3);
-        model.setValueAt(PT_DeptHeadField.getText(), selectedRow, 4);
-        model.setValueAt(PT_DeptHeadField1.getSelectedItem(), selectedRow, 5);
+        model.setValueAt(deptCollege, selectedRow, 0);
+        model.setValueAt(program, selectedRow, 1);
+        model.setValueAt(deptHead, selectedRow, 2);
+        model.setValueAt(dean, selectedRow, 3);
+        model.setValueAt(instructor, selectedRow, 4);
+        model.setValueAt(course, selectedRow, 5);
 
         JOptionPane.showMessageDialog(this, "Successfully Updated!");
-    }                                       
+    }
 
-    private void PT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void PT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = PT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Get the Department object to identify what to delete
+        Department toDelete = departmentList.get(selectedRow);
+
+        // Delete from database
+        boolean success = db.getDepartment().deleteDepartment(toDelete.getProgram());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete record from database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        departmentList.remove(selectedRow);
         DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
         model.removeRow(selectedRow);
 
         JOptionPane.showMessageDialog(this, "Successfully Deleted");
         PT_Clear();
-    }                                         
+    }
 
     private void PT_Clear() {
         PT_ProgramField1.setSelectedIndex(0);
@@ -295,6 +374,8 @@ public class ProgramTab extends javax.swing.JPanel {
             PT_DeanField.setText((String) model.getValueAt(selectedRow, 3));
             PT_DeptHeadField.setText((String) model.getValueAt(selectedRow, 4));
             PT_DeptHeadField1.setSelectedItem(model.getValueAt(selectedRow, 5));
+        } else {
+            PT_Clear();
         }
     }
 

@@ -5,13 +5,28 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.ParseException;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Course;
+
+
+
 public class CourseTab extends javax.swing.JPanel {
 
-    public CourseTab() {
+    private ArrayList<Course> courseList;
+    private Database db;
+
+
+    public CourseTab(Database db) {
         initComponents();
+        this.db = db;
+
+        this.courseList = db.getCourse().getAllCourses();
+        loadTableFromList();
+
 
         // Add selection listener to the table to sync with input fields
         CT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -22,6 +37,26 @@ public class CourseTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
+        model.setRowCount(0); // clear existing rows
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Course c : courseList) {
+            model.addRow(new Object[]{
+                String.valueOf(c.getId()),
+                c.getProgram(),
+                c.getId(),
+                c.getSubjectCode(),
+                c.getUnits(),
+                c.getDescriptiveTitle(),
+                c.getGrade() != null ? c.getGrade().toString() : "",
+                c.getTime(),
+                c.getTerm(),
+                sdf.format(c.getDateSubmitted())
+            });
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -298,8 +333,9 @@ public class CourseTab extends javax.swing.JPanel {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateSubmitted = sdf.format((Date) CT_DateSubmittedField.getValue());
 
-        if (studentID.isEmpty() || subjectCode.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student ID and Subject Code are required.", "Warning", JOptionPane.WARNING_MESSAGE);
+        boolean success = db.getCourse().createCourse(newCourse);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to add course.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

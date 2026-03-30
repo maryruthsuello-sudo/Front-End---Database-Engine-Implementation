@@ -7,13 +7,26 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Enrollment;
+
 
 public class EnrollmentTab extends javax.swing.JPanel {
 
-    public EnrollmentTab() {
+    private ArrayList<Enrollment> enrollmentList;
+    private Database db;
+
+    public EnrollmentTab(Database db) {
         initComponents();
-        
+        this.db = db;
+
+        // Load existing records from the database into the list and table
+        this.enrollmentList = db.getEnrollment().getAllEnrollment();
+        loadTableFromList();
+
         // Add ListSelectionListener to the table for synchronization
         ET_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -23,6 +36,21 @@ public class EnrollmentTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    // Populates the JTable from the enrollmentList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+        model.setRowCount(0); // clear existing rows
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Enrollment e : enrollmentList) {
+            model.addRow(new Object[]{
+                String.valueOf(e.getId()),
+                e.getProgram(),
+                e.getSchoolYr(),
+                sdf.format(e.getDateAdmitted())
+            });
+        }
     }
 
     private void initComponents() {
@@ -53,7 +81,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
 
         ET_Student.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         ET_Student.setForeground(new java.awt.Color(250, 247, 245));
-        ET_Student.setText("Student");
+        ET_Student.setText("Student ID");
 
         ET_Program.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         ET_Program.setForeground(new java.awt.Color(250, 247, 245));
@@ -142,7 +170,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
                 .addComponent(ET_DateAdmitted)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ET_DateAdmittedField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(ET_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ET_Add)
                     .addComponent(ET_Update)
@@ -154,15 +182,9 @@ public class EnrollmentTab extends javax.swing.JPanel {
         ET_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         ET_Table.setModel(new DefaultTableModel(
-            new Object [][] {},
-            new String [] {
-                "Student", "Program", "School Year", "Date Admitted"
-            }
+            new Object[][] {},
+            new String[] {"Student ID", "Program", "School Year", "Date Admitted"}
         ));
-        ET_Table.getColumnModel().getColumn(0).setPreferredWidth(180); // Student
-        ET_Table.getColumnModel().getColumn(1).setPreferredWidth(400); // Program
-        ET_Table.getColumnModel().getColumn(2).setPreferredWidth(120); // School Year
-        ET_Table.getColumnModel().getColumn(3).setPreferredWidth(160); // Date Admitted
 
         ET_RightScrollPane.setViewportView(ET_Table);
 
@@ -203,85 +225,154 @@ public class EnrollmentTab extends javax.swing.JPanel {
                     .addComponent(ET_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }// </editor-fold>
 
-    private void ET_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        String student = ET_StudentField.getText().trim();
-        if (student.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+    private void ET_AddActionPerformed(java.awt.event.ActionEvent evt) {
+        String studentIdStr = ET_StudentField.getText().trim();
+        if (studentIdStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         String program = (String) ET_ProgramField.getSelectedItem();
-        String schoolYear = ET_SchoolYearField.getText();
-        
+        String schoolYear = ET_SchoolYearField.getText().trim();
+
         Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateAdmitted = sdf.format(dateAdmittedVal);
+        String dateAdmittedStr = sdf.format(dateAdmittedVal);
 
+        // Build Enrollment object
+        Enrollment newEnrollment = new Enrollment(
+            studentId,
+            program,
+            schoolYear,
+            java.sql.Date.valueOf(dateAdmittedStr)
+        );
+
+        // Save to database
+        boolean success = db.getEnrollment().createEnrollment(newEnrollment);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to add enrollment. Student may already be enrolled or does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        enrollmentList.add(newEnrollment);
         DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-        model.addRow(new Object[]{student, program, schoolYear, dateAdmitted});
+        model.addRow(new Object[]{
+            String.valueOf(studentId),
+            program,
+            schoolYear,
+            dateAdmittedStr
+        });
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         ET_ClearActionPerformed(null);
-    }                                      
+    }
 
-    private void ET_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void ET_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = ET_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String student = ET_StudentField.getText().trim();
-        if (student.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        String studentIdStr = ET_StudentField.getText().trim();
+        if (studentIdStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         String program = (String) ET_ProgramField.getSelectedItem();
-        String schoolYear = ET_SchoolYearField.getText();
-        
+        String schoolYear = ET_SchoolYearField.getText().trim();
+
         Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateAdmitted = sdf.format(dateAdmittedVal);
+        String dateAdmittedStr = sdf.format(dateAdmittedVal);
 
+        // Build updated Enrollment object
+        Enrollment updatedEnrollment = new Enrollment(
+            studentId,
+            program,
+            schoolYear,
+            java.sql.Date.valueOf(dateAdmittedStr)
+        );
+
+        // Update in database
+        boolean success = db.getEnrollment().updateEnrollment(updatedEnrollment);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update enrollment. Student may not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list
+        enrollmentList.set(selectedRow, updatedEnrollment);
+
+        // Update table
         DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-        model.setValueAt(student, selectedRow, 0);
+        model.setValueAt(String.valueOf(studentId), selectedRow, 0);
         model.setValueAt(program, selectedRow, 1);
         model.setValueAt(schoolYear, selectedRow, 2);
-        model.setValueAt(dateAdmitted, selectedRow, 3);
-        
-        JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
-    }                                         
+        model.setValueAt(dateAdmittedStr, selectedRow, 3);
 
-    private void ET_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void ET_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int row = ET_Table.getSelectedRow();
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to delete.");
             return;
         }
 
+        // Get the ID of the enrollment to delete
+        Enrollment toDelete = enrollmentList.get(row);
+
+        // Delete from database
+        boolean success = db.getEnrollment().deleteEnrollment(toDelete.getId());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete enrollment from database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        enrollmentList.remove(row);
         DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
         model.removeRow(row);
 
         JOptionPane.showMessageDialog(this, "Successfully Deleted!");
         ET_ClearActionPerformed(null);
-    }                                         
+    }
 
-    private void ET_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    private void ET_ClearActionPerformed(java.awt.event.ActionEvent evt) {
         ET_StudentField.setText("");
         ET_ProgramField.setSelectedIndex(0);
         ET_SchoolYearField.setText("2025-2026");
         ET_DateAdmittedField.setValue(new Date());
         ET_Table.clearSelection();
-    }                                        
+    }
 
     private void ET_TableSelectionChanged(ListSelectionEvent e) {
         int selectedRow = ET_Table.getSelectedRow();
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-            
+
             ET_StudentField.setText((String) model.getValueAt(selectedRow, 0));
             ET_ProgramField.setSelectedItem(model.getValueAt(selectedRow, 1));
             ET_SchoolYearField.setText((String) model.getValueAt(selectedRow, 2));
@@ -293,6 +384,8 @@ public class EnrollmentTab extends javax.swing.JPanel {
             } catch (ParseException ex) {
                 System.err.println("Error parsing date: " + ex.getMessage());
             }
+        } else {
+            ET_ClearActionPerformed(null);
         }
     }
 

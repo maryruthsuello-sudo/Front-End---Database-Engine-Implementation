@@ -37,7 +37,7 @@ public class Department {
         return course;
     }
 
-    public String getCollege() {
+    public String getDeptCollege() {
         return college;
     }
 
