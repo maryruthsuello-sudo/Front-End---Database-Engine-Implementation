@@ -1,9 +1,24 @@
 package databaseengine.gui;
 
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 public class ProgramTab extends javax.swing.JPanel {
 
     public ProgramTab() {
         initComponents();
+
+        // Add selection listener to the table to sync with input fields
+        PT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    PT_TableSelectionChanged(e);
+                }
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -17,8 +32,8 @@ public class ProgramTab extends javax.swing.JPanel {
         PT_DeptHead = new javax.swing.JLabel();
         PT_ProgramField = new javax.swing.JComboBox<>();
         PT_InstructorField = new javax.swing.JComboBox<>();
-        PT_DeanField = new javax.swing.JComboBox<>();
-        PT_DeptHeadField = new javax.swing.JComboBox<>();
+        PT_DeanField = new javax.swing.JTextField();
+        PT_DeptHeadField = new javax.swing.JTextField();
         PT_Add = new javax.swing.JButton();
         PT_Edit = new javax.swing.JButton();
         PT_Delete = new javax.swing.JButton();
@@ -57,10 +72,8 @@ public class ProgramTab extends javax.swing.JPanel {
         PT_InstructorField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mr. Lim", "Mr. Tan", "Mr. Ong" }));
 
         PT_DeanField.setBackground(new java.awt.Color(250, 247, 245));
-        PT_DeanField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Dr. Santos", "Dr. Gomez", "Dr. Lopez" }));
 
         PT_DeptHeadField.setBackground(new java.awt.Color(250, 247, 245));
-        PT_DeptHeadField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Prof. Cruz", "Prof. Reyes", "Prof. Garcia" }));
 
         PT_Add.setBackground(new java.awt.Color(210, 180, 140));
         PT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
@@ -158,16 +171,17 @@ public class ProgramTab extends javax.swing.JPanel {
         PT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         PT_Table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
-            },
+            new Object [][] {},
             new String [] {
                 "Department College", "Program", "Department Head", "Dean", "Instructor", "Course"
             }
         ));
+        PT_Table.getColumnModel().getColumn(0).setPreferredWidth(180); // Department College
+        PT_Table.getColumnModel().getColumn(1).setPreferredWidth(400); // Program
+        PT_Table.getColumnModel().getColumn(2).setPreferredWidth(150); // Department Head
+        PT_Table.getColumnModel().getColumn(3).setPreferredWidth(120); // Dean
+        PT_Table.getColumnModel().getColumn(4).setPreferredWidth(120); // Instructor
+        PT_Table.getColumnModel().getColumn(5).setPreferredWidth(200); // Course
         PT_RightScrollPane.setViewportView(PT_Table);
 
         javax.swing.GroupLayout PT_RightPanelLayout = new javax.swing.GroupLayout(PT_RightPanel);
@@ -210,24 +224,87 @@ public class ProgramTab extends javax.swing.JPanel {
     }// </editor-fold>                        
 
     private void PT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        // TODO add your handling code here:
+        String deptCollege = (String) PT_ProgramField1.getSelectedItem();
+        String program = (String) PT_ProgramField.getSelectedItem();
+        String deptHead = (String) PT_InstructorField.getSelectedItem();
+        String dean = PT_DeanField.getText().trim();
+        String instructor = PT_DeptHeadField.getText().trim();
+        String course = (String) PT_DeptHeadField1.getSelectedItem();
+
+        if (dean.isEmpty() || instructor.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all text fields.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
+        model.addRow(new Object[]{deptCollege, program, deptHead, dean, instructor, course});
+
+        JOptionPane.showMessageDialog(this, "Successfully Added!");
+        PT_Clear();
     }                                      
 
     private void PT_EditActionPerformed(java.awt.event.ActionEvent evt) {                                        
-        // TODO add your handling code here:
+        int selectedRow = PT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to edit.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
+        model.setValueAt(PT_ProgramField1.getSelectedItem(), selectedRow, 0);
+        model.setValueAt(PT_ProgramField.getSelectedItem(), selectedRow, 1);
+        model.setValueAt(PT_InstructorField.getSelectedItem(), selectedRow, 2);
+        model.setValueAt(PT_DeanField.getText(), selectedRow, 3);
+        model.setValueAt(PT_DeptHeadField.getText(), selectedRow, 4);
+        model.setValueAt(PT_DeptHeadField1.getSelectedItem(), selectedRow, 5);
+
+        JOptionPane.showMessageDialog(this, "Successfully Updated!");
     }                                       
 
     private void PT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        // TODO add your handling code here:
+        int selectedRow = PT_Table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
+        model.removeRow(selectedRow);
+
+        JOptionPane.showMessageDialog(this, "Successfully Deleted");
+        PT_Clear();
     }                                         
+
+    private void PT_Clear() {
+        PT_ProgramField1.setSelectedIndex(0);
+        PT_ProgramField.setSelectedIndex(0);
+        PT_InstructorField.setSelectedIndex(0);
+        PT_DeanField.setText("");
+        PT_DeptHeadField.setText("");
+        PT_DeptHeadField1.setSelectedIndex(0);
+        PT_Table.clearSelection();
+    }
+
+    private void PT_TableSelectionChanged(ListSelectionEvent e) {
+        int selectedRow = PT_Table.getSelectedRow();
+        if (selectedRow != -1) {
+            DefaultTableModel model = (DefaultTableModel) PT_Table.getModel();
+            PT_ProgramField1.setSelectedItem(model.getValueAt(selectedRow, 0));
+            PT_ProgramField.setSelectedItem(model.getValueAt(selectedRow, 1));
+            PT_InstructorField.setSelectedItem(model.getValueAt(selectedRow, 2));
+            PT_DeanField.setText((String) model.getValueAt(selectedRow, 3));
+            PT_DeptHeadField.setText((String) model.getValueAt(selectedRow, 4));
+            PT_DeptHeadField1.setSelectedItem(model.getValueAt(selectedRow, 5));
+        }
+    }
 
     private javax.swing.JButton PT_Add;
     private javax.swing.JLabel PT_Dean;
-    private javax.swing.JComboBox<String> PT_DeanField;
+    private javax.swing.JTextField PT_DeanField;
     private javax.swing.JButton PT_Delete;
     private javax.swing.JLabel PT_DeptHead;
     private javax.swing.JLabel PT_DeptHead1;
-    private javax.swing.JComboBox<String> PT_DeptHeadField;
+    private javax.swing.JTextField PT_DeptHeadField;
     private javax.swing.JComboBox<String> PT_DeptHeadField1;
     private javax.swing.JButton PT_Edit;
     private javax.swing.JLabel PT_Instructor;
