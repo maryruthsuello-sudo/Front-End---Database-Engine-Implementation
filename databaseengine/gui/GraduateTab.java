@@ -1,5 +1,6 @@
 package databaseengine.gui;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,16 +10,23 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Graduate;
+
 public class GraduateTab extends javax.swing.JPanel {
 
-    // In-memory list to store graduate records temporarily (no DB yet)
-    // Columns: Student, Program, Unit Grade, Rating, Graduation Date, Final Grade, Major
-    private ArrayList<String[]> graduateList = new ArrayList<>();
+    private ArrayList<Graduate> graduateList;
+    private Database db;
 
-    public GraduateTab() {
+    public GraduateTab(Database db) {
         initComponents();
+        this.db = db;
 
-        // Populate fields when a row is selected — same as SectionTab/StudentTab
+        // Load existing records from the database
+        this.graduateList = db.getGraduate().viewGraduates();
+        loadTableFromList();
+
+        // Populate fields when a row is selected
         GrT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -27,6 +35,24 @@ public class GraduateTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    // Populates the JTable from the graduateList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) GrT_Table.getModel();
+        model.setRowCount(0);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Graduate g : graduateList) {
+            model.addRow(new Object[]{
+                String.valueOf(g.getStudentId()),
+                g.getProg(),
+                g.getUnitGrade() != null ? g.getUnitGrade().toString() : "",
+                g.getRating() != null ? g.getRating().toString() : "",
+                sdf.format(g.getGraduationDate()),
+                g.getFinalGrade() != null ? g.getFinalGrade().toString() : "",
+                g.getMajor()
+            });
+        }
     }
 
     private void initComponents() {
@@ -65,7 +91,7 @@ public class GraduateTab extends javax.swing.JPanel {
 
         GrT_Student.setFont(new java.awt.Font("Segoe UI", 1, 16));
         GrT_Student.setForeground(new java.awt.Color(250, 247, 245));
-        GrT_Student.setText("Student");
+        GrT_Student.setText("Student ID");
 
         GrT_Program.setFont(new java.awt.Font("Segoe UI", 1, 16));
         GrT_Program.setForeground(new java.awt.Color(250, 247, 245));
@@ -92,8 +118,8 @@ public class GraduateTab extends javax.swing.JPanel {
         GrT_Major.setText("Major");
 
         GrT_StudentField.setFont(new java.awt.Font("Segoe UI", 0, 16));
-        GrT_StudentField.setBackground(new java.awt.Color(250, 247, 245)); // white bg
-        GrT_StudentField.setForeground(new java.awt.Color(0, 0, 0));       // black text
+        GrT_StudentField.setBackground(new java.awt.Color(250, 247, 245));
+        GrT_StudentField.setForeground(new java.awt.Color(0, 0, 0));
 
         GrT_ProgramField.setBackground(new java.awt.Color(250, 247, 245));
         GrT_ProgramField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
@@ -102,7 +128,6 @@ public class GraduateTab extends javax.swing.JPanel {
             "Bachelor of Science in Information Systems"
         }));
 
-        // UnitGrade, Rating, FinalGrade — editable, user types values
         GrT_UnitGradeField.setBackground(new java.awt.Color(250, 247, 245));
         GrT_UnitGradeField.addActionListener(this::GrT_UnitGradeFieldActionPerformed);
 
@@ -213,10 +238,9 @@ public class GraduateTab extends javax.swing.JPanel {
 
         GrT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        // Start with empty table (no placeholder null rows)
         GrT_Table.setModel(new javax.swing.table.DefaultTableModel(
             new Object[][]{},
-            new String[]{"Student", "Program", "Unit Grade", "Rating", "Graduation Date", "Final Grade", "Major"}
+            new String[]{"Student ID", "Program", "Unit Grade", "Rating", "Graduation Date", "Final Grade", "Major"}
         ));
         GrT_RightScrollPane.setViewportView(GrT_Table);
 
@@ -259,44 +283,63 @@ public class GraduateTab extends javax.swing.JPanel {
         );
     }
 
-    // ADD — validates fields, checks for duplicate student entry, adds to list and table
+    // ADD — validates, saves to DB, adds to list and table
     private void GrT_AddActionPerformed(java.awt.event.ActionEvent evt) {
-        String student      = GrT_StudentField.getText().trim();
+        String studentIdStr = GrT_StudentField.getText().trim();
         String program      = GrT_ProgramField.getSelectedItem().toString();
-        String unitGrade    = GrT_UnitGradeField.getText().trim();
-        String rating       = GrT_RatingField.getText().trim();
-        String finalGrade   = GrT_FinalGradeField.getText().trim();
+        String unitGradeStr = GrT_UnitGradeField.getText().trim();
+        String ratingStr    = GrT_RatingField.getText().trim();
+        String finalGradeStr = GrT_FinalGradeField.getText().trim();
         String major        = GrT_MajorField.getSelectedItem().toString();
 
         Date gradDateValue  = (Date) GrT_GraduationDateField.getValue();
         String gradDate     = new SimpleDateFormat("yyyy-MM-dd").format(gradDateValue);
 
-        if (unitGrade.isEmpty() || rating.isEmpty() || finalGrade.isEmpty()) {
+        if (studentIdStr.isEmpty() || unitGradeStr.isEmpty() || ratingStr.isEmpty() || finalGradeStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Check duplicate: same Student already in list
-        for (String[] entry : graduateList) {
-            if (entry[0].equals(student)) {
-                JOptionPane.showMessageDialog(this,
-                    "A graduate record for \"" + student + "\" already exists.",
-                    "Duplicate Entry", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        // Add to in-memory list
-        graduateList.add(new String[]{student, program, unitGrade, rating, gradDate, finalGrade, major});
+        BigDecimal unitGrade, rating, finalGrade;
+        try {
+            unitGrade  = new BigDecimal(unitGradeStr);
+            rating     = new BigDecimal(ratingStr);
+            finalGrade = new BigDecimal(finalGradeStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Unit Grade, Rating, and Final Grade must be valid decimal numbers.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // Add to table
+        // Build Graduate object
+        Graduate newGraduate = new Graduate(studentId, program, unitGrade, rating,
+                java.sql.Date.valueOf(gradDate), finalGrade, major);
+
+        // Save to database
+        boolean success = db.getGraduate().createGraduate(newGraduate);
+        if (!success) {
+            JOptionPane.showMessageDialog(this,
+                "Failed to add graduate record. Student may already have a record.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        graduateList.add(newGraduate);
         DefaultTableModel model = (DefaultTableModel) GrT_Table.getModel();
-        model.addRow(new Object[]{student, program, unitGrade, rating, gradDate, finalGrade, major});
+        model.addRow(new Object[]{studentIdStr, program, unitGradeStr, ratingStr, gradDate, finalGradeStr, major});
 
         GrT_ClearActionPerformed(evt);
     }
 
-    // UPDATE — updates selected row in list and table
+    // UPDATE — saves to DB, updates list and table
     private void GrT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = GrT_Table.getSelectedRow();
         if (selectedRow == -1) {
@@ -304,38 +347,64 @@ public class GraduateTab extends javax.swing.JPanel {
             return;
         }
 
-        String student      = GrT_StudentField.getText().trim();
-        String program      = GrT_ProgramField.getSelectedItem().toString();
-        String unitGrade    = GrT_UnitGradeField.getText().trim();
-        String rating       = GrT_RatingField.getText().trim();
-        String finalGrade   = GrT_FinalGradeField.getText().trim();
-        String major        = GrT_MajorField.getSelectedItem().toString();
+        String studentIdStr  = GrT_StudentField.getText().trim();
+        String program       = GrT_ProgramField.getSelectedItem().toString();
+        String unitGradeStr  = GrT_UnitGradeField.getText().trim();
+        String ratingStr     = GrT_RatingField.getText().trim();
+        String finalGradeStr = GrT_FinalGradeField.getText().trim();
+        String major         = GrT_MajorField.getSelectedItem().toString();
 
-        Date gradDateValue  = (Date) GrT_GraduationDateField.getValue();
-        String gradDate     = new SimpleDateFormat("yyyy-MM-dd").format(gradDateValue);
+        Date gradDateValue   = (Date) GrT_GraduationDateField.getValue();
+        String gradDate      = new SimpleDateFormat("yyyy-MM-dd").format(gradDateValue);
 
-        if (unitGrade.isEmpty() || rating.isEmpty() || finalGrade.isEmpty()) {
+        if (studentIdStr.isEmpty() || unitGradeStr.isEmpty() || ratingStr.isEmpty() || finalGradeStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Update in-memory list
-        graduateList.set(selectedRow, new String[]{student, program, unitGrade, rating, gradDate, finalGrade, major});
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // Update table
+        BigDecimal unitGrade, rating, finalGrade;
+        try {
+            unitGrade  = new BigDecimal(unitGradeStr);
+            rating     = new BigDecimal(ratingStr);
+            finalGrade = new BigDecimal(finalGradeStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Unit Grade, Rating, and Final Grade must be valid decimal numbers.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Graduate updatedGraduate = new Graduate(studentId, program, unitGrade, rating,
+                java.sql.Date.valueOf(gradDate), finalGrade, major);
+
+        // Update in database
+        boolean success = db.getGraduate().updateGraduate(updatedGraduate);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update graduate record.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list and table
+        graduateList.set(selectedRow, updatedGraduate);
         DefaultTableModel model = (DefaultTableModel) GrT_Table.getModel();
-        model.setValueAt(student,    selectedRow, 0);
-        model.setValueAt(program,    selectedRow, 1);
-        model.setValueAt(unitGrade,  selectedRow, 2);
-        model.setValueAt(rating,     selectedRow, 3);
-        model.setValueAt(gradDate,   selectedRow, 4);
-        model.setValueAt(finalGrade, selectedRow, 5);
-        model.setValueAt(major,      selectedRow, 6);
+        model.setValueAt(studentIdStr, selectedRow, 0);
+        model.setValueAt(program,      selectedRow, 1);
+        model.setValueAt(unitGradeStr, selectedRow, 2);
+        model.setValueAt(ratingStr,    selectedRow, 3);
+        model.setValueAt(gradDate,     selectedRow, 4);
+        model.setValueAt(finalGradeStr, selectedRow, 5);
+        model.setValueAt(major,        selectedRow, 6);
 
         JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // DELETE — removes selected row from list and table
+    // DELETE — removes from DB, list, and table
     private void GrT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = GrT_Table.getSelectedRow();
         if (selectedRow == -1) {
@@ -343,8 +412,17 @@ public class GraduateTab extends javax.swing.JPanel {
             return;
         }
 
-        graduateList.remove(selectedRow);
+        Graduate toDelete = graduateList.get(selectedRow);
 
+        // Delete from database
+        boolean success = db.getGraduate().deleteGraduate(toDelete.getStudentId());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete graduate record from database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        graduateList.remove(selectedRow);
         DefaultTableModel model = (DefaultTableModel) GrT_Table.getModel();
         model.removeRow(selectedRow);
 
@@ -354,7 +432,7 @@ public class GraduateTab extends javax.swing.JPanel {
 
     // CLEAR — resets all fields
     private void GrT_ClearActionPerformed(java.awt.event.ActionEvent evt) {
-        GrT_StudentField.setSelectedIndex(0);
+        GrT_StudentField.setText("");  // fixed: was incorrectly calling setSelectedIndex on a JTextField
         GrT_ProgramField.setSelectedIndex(0);
         GrT_UnitGradeField.setText("");
         GrT_RatingField.setText("");
@@ -370,7 +448,7 @@ public class GraduateTab extends javax.swing.JPanel {
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) GrT_Table.getModel();
 
-            String student    = (String) model.getValueAt(selectedRow, 0);
+            String studentId  = (String) model.getValueAt(selectedRow, 0);
             String program    = (String) model.getValueAt(selectedRow, 1);
             String unitGrade  = (String) model.getValueAt(selectedRow, 2);
             String rating     = (String) model.getValueAt(selectedRow, 3);
@@ -378,7 +456,7 @@ public class GraduateTab extends javax.swing.JPanel {
             String finalGrade = (String) model.getValueAt(selectedRow, 5);
             String major      = (String) model.getValueAt(selectedRow, 6);
 
-            GrT_StudentField.setText(student);
+            GrT_StudentField.setText(studentId);
             GrT_ProgramField.setSelectedItem(program);
             GrT_UnitGradeField.setText(unitGrade);
             GrT_RatingField.setText(rating);

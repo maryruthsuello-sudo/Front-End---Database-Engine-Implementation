@@ -4,14 +4,14 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.text.ParseException;
 
 import databaseengine.backend.Database;
 import databaseengine.backend.model.Course;
-
 
 
 public class CourseTab extends javax.swing.JPanel {
@@ -19,14 +19,13 @@ public class CourseTab extends javax.swing.JPanel {
     private ArrayList<Course> courseList;
     private Database db;
 
-
     public CourseTab(Database db) {
         initComponents();
         this.db = db;
 
+        // Load existing records from the database into the list and table
         this.courseList = db.getCourse().getAllCourses();
         loadTableFromList();
-
 
         // Add selection listener to the table to sync with input fields
         CT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -39,17 +38,17 @@ public class CourseTab extends javax.swing.JPanel {
         });
     }
 
+    // Populates the JTable from the courseList (used on startup)
     private void loadTableFromList() {
         DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
         model.setRowCount(0); // clear existing rows
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Course c : courseList) {
             model.addRow(new Object[]{
-                String.valueOf(c.getId()),
                 c.getProgram(),
-                c.getId(),
+                String.valueOf(c.getId()),
                 c.getSubjectCode(),
-                c.getUnits(),
+                String.valueOf(c.getUnits()),
                 c.getDescriptiveTitle(),
                 c.getGrade() != null ? c.getGrade().toString() : "",
                 c.getTime(),
@@ -318,70 +317,206 @@ public class CourseTab extends javax.swing.JPanel {
                     .addComponent(CT_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }// </editor-fold>
 
-    private void CT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
+    private void CT_AddActionPerformed(java.awt.event.ActionEvent evt) {
         String program = (String) CT_ProgramField.getSelectedItem();
-        String studentID = CT_StudentIDField.getText().trim();
+        String studentIDStr = CT_StudentIDField.getText().trim();
         String subjectCode = CT_SubjectCodeField.getText().trim();
-        String units = CT_UnitsField.getText().trim();
+        String unitsStr = CT_UnitsField.getText().trim();
         String title = CT_DescriptiveTitleField.getText().trim();
-        String grade = CT_GradeField.getText().trim();
+        String gradeStr = CT_GradeField.getText().trim();
         String time = CT_TimeField.getText().trim();
         String term = (String) CT_TermField.getSelectedItem();
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateSubmitted = sdf.format((Date) CT_DateSubmittedField.getValue());
 
-        boolean success = db.getCourse().createCourse(newCourse);
-        if (!success) {
-            JOptionPane.showMessageDialog(this, "Failed to add course.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Validate required fields
+        if (studentIDStr.isEmpty() || subjectCode.isEmpty() || unitsStr.isEmpty() || title.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIDStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int units;
+        try {
+            units = Integer.parseInt(unitsStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BigDecimal grade = null;
+        if (!gradeStr.isEmpty()) {
+            try {
+                grade = new BigDecimal(gradeStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Grade must be a valid decimal number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateSubmittedStr = sdf.format((Date) CT_DateSubmittedField.getValue());
+
+        // Build Course object
+        Course newCourse = new Course(
+            program,
+            studentId,
+            subjectCode,
+            units,
+            title,
+            grade,
+            time,
+            term,
+            java.sql.Date.valueOf(dateSubmittedStr)
+        );
+
+        // Save to database
+        boolean success = db.getCourse().createCourse(newCourse);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to add course. Please check the data and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        courseList.add(newCourse);
         DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
-        model.addRow(new Object[]{program, studentID, subjectCode, units, title, grade, time, term, dateSubmitted});
+        model.addRow(new Object[]{
+            program,
+            studentIDStr,
+            subjectCode,
+            unitsStr,
+            title,
+            gradeStr,
+            time,
+            term,
+            dateSubmittedStr
+        });
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         CT_ClearActionPerformed(null);
-    }                                      
+    }
 
-    private void CT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void CT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = CT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
-        model.setValueAt(CT_ProgramField.getSelectedItem(), selectedRow, 0);
-        model.setValueAt(CT_StudentIDField.getText(), selectedRow, 1);
-        model.setValueAt(CT_SubjectCodeField.getText(), selectedRow, 2);
-        model.setValueAt(CT_UnitsField.getText(), selectedRow, 3);
-        model.setValueAt(CT_DescriptiveTitleField.getText(), selectedRow, 4);
-        model.setValueAt(CT_GradeField.getText(), selectedRow, 5);
-        model.setValueAt(CT_TimeField.getText(), selectedRow, 6);
-        model.setValueAt(CT_TermField.getSelectedItem(), selectedRow, 7);
-        
+        String program = (String) CT_ProgramField.getSelectedItem();
+        String studentIDStr = CT_StudentIDField.getText().trim();
+        String subjectCode = CT_SubjectCodeField.getText().trim();
+        String unitsStr = CT_UnitsField.getText().trim();
+        String title = CT_DescriptiveTitleField.getText().trim();
+        String gradeStr = CT_GradeField.getText().trim();
+        String time = CT_TimeField.getText().trim();
+        String term = (String) CT_TermField.getSelectedItem();
+
+        // Validate required fields
+        if (studentIDStr.isEmpty() || subjectCode.isEmpty() || unitsStr.isEmpty() || title.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIDStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int units;
+        try {
+            units = Integer.parseInt(unitsStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        BigDecimal grade = null;
+        if (!gradeStr.isEmpty()) {
+            try {
+                grade = new BigDecimal(gradeStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Grade must be a valid decimal number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        model.setValueAt(sdf.format((Date) CT_DateSubmittedField.getValue()), selectedRow, 8);
+        String dateSubmittedStr = sdf.format((Date) CT_DateSubmittedField.getValue());
+
+        // Build updated Course object
+        Course updatedCourse = new Course(
+            program,
+            studentId,
+            subjectCode,
+            units,
+            title,
+            grade,
+            time,
+            term,
+            java.sql.Date.valueOf(dateSubmittedStr)
+        );
+
+        // Update in database
+        boolean success = db.getCourse().updateCourse(updatedCourse);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update course.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list
+        courseList.set(selectedRow, updatedCourse);
+
+        // Update table
+        DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
+        model.setValueAt(program, selectedRow, 0);
+        model.setValueAt(studentIDStr, selectedRow, 1);
+        model.setValueAt(subjectCode, selectedRow, 2);
+        model.setValueAt(unitsStr, selectedRow, 3);
+        model.setValueAt(title, selectedRow, 4);
+        model.setValueAt(gradeStr, selectedRow, 5);
+        model.setValueAt(time, selectedRow, 6);
+        model.setValueAt(term, selectedRow, 7);
+        model.setValueAt(dateSubmittedStr, selectedRow, 8);
 
         JOptionPane.showMessageDialog(this, "Successfully Updated!");
-    }                                         
+    }
 
-    private void CT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void CT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = CT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Get the Course to delete — subject_code is the DB key
+        Course toDelete = courseList.get(selectedRow);
+
+        // Delete from database
+        boolean success = db.getCourse().deleteCourse(toDelete.getSubjectCode());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete course. It may be referenced by a section.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        courseList.remove(selectedRow);
         DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
         model.removeRow(selectedRow);
 
         JOptionPane.showMessageDialog(this, "Successfully Deleted!");
         CT_ClearActionPerformed(null);
-    }                                         
+    }
 
     private void CT_ClearActionPerformed(java.awt.event.ActionEvent evt) {
         CT_ProgramField.setSelectedIndex(0);
@@ -396,27 +531,27 @@ public class CourseTab extends javax.swing.JPanel {
         CT_Table.clearSelection();
     }
 
-    private void CT_DescriptiveTitleFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                         
+    private void CT_DescriptiveTitleFieldActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }                                                        
+    }
 
-    private void CT_TimeFieldActionPerformed(java.awt.event.ActionEvent evt) {                                             
+    private void CT_TimeFieldActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }                                            
+    }
 
-    private void CT_UnitsFieldActionPerformed(java.awt.event.ActionEvent evt) {                                              
+    private void CT_UnitsFieldActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }                                             
+    }
 
-    private void CT_StudentIDFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                  
+    private void CT_StudentIDFieldActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }                                                 
+    }
 
     private void CT_TableSelectionChanged(ListSelectionEvent e) {
         int selectedRow = CT_Table.getSelectedRow();
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) CT_Table.getModel();
-            
+
             CT_ProgramField.setSelectedItem(model.getValueAt(selectedRow, 0));
             CT_StudentIDField.setText((String) model.getValueAt(selectedRow, 1));
             CT_SubjectCodeField.setText((String) model.getValueAt(selectedRow, 2));
@@ -425,14 +560,16 @@ public class CourseTab extends javax.swing.JPanel {
             CT_GradeField.setText((String) model.getValueAt(selectedRow, 5));
             CT_TimeField.setText((String) model.getValueAt(selectedRow, 6));
             CT_TermField.setSelectedItem(model.getValueAt(selectedRow, 7));
-            String dateStr = (String) model.getValueAt(selectedRow, 8);
 
+            String dateStr = (String) model.getValueAt(selectedRow, 8);
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 CT_DateSubmittedField.setValue(sdf.parse(dateStr));
             } catch (ParseException ex) {
                 System.err.println("Error parsing date: " + ex.getMessage());
             }
+        } else {
+            CT_ClearActionPerformed(null);
         }
     }
 

@@ -8,7 +8,7 @@ public class Grades {
     private String subjectCode;
     private int units;
 
-    public Grades(int studentId, BigDecimal grade, String subjectCode, int units) {
+    public Grades(int studentId, String subjectCode, BigDecimal grade, int units) {
         this.studentId = studentId;
         this.grade = grade;
         this.subjectCode = subjectCode;

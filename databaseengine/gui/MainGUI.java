@@ -25,11 +25,11 @@ public class MainGUI extends javax.swing.JFrame {
         PT = new databaseengine.gui.ProgramTab(db);
         CT = new databaseengine.gui.CourseTab(db);
         ET = new databaseengine.gui.EnrollmentTab(db);
-        SeT = new databaseengine.gui.SectionTab();
-        GT = new databaseengine.gui.GradeTab();
-        GrT = new databaseengine.gui.GraduateTab();
-        TT = new databaseengine.gui.TORTab();
-
+        SeT = new databaseengine.gui.SectionTab(db);
+        GT = new databaseengine.gui.GradeTab(db);
+        GrT = new databaseengine.gui.GraduateTab(db);
+        TT = new databaseengine.gui.TORTab(db);
+        
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         MainPanel.setBackground(new java.awt.Color(245, 240, 237));
