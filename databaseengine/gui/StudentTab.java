@@ -25,7 +25,7 @@ public class StudentTab extends javax.swing.JPanel {
         initComponents();
         this.db = db;
         this.studentList = db.getStudent().getAllStudents();
-        ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+        ST_StudentIDField.setText(String.valueOf(currentID));
         
         // Add ListSelectionListener to the table
         ST_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -293,7 +293,7 @@ public class StudentTab extends javax.swing.JPanel {
 
     // Add to JTable
     model.addRow(new Object[]{
-        String.format("REC-%03d", s.getId()),
+        String.valueOf(s.getId()),
         s.getName(),
         s.getBirthday(),
         s.getBirthPlace(),
@@ -304,7 +304,7 @@ public class StudentTab extends javax.swing.JPanel {
 
     // Update next ID display
     currentID++;
-    ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+    ST_StudentIDField.setText(String.valueOf(currentID));
     }
 
     private void ST_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
@@ -377,7 +377,7 @@ public class StudentTab extends javax.swing.JPanel {
     }                                         
 
     private void ST_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
-    ST_StudentIDField.setText(String.format("REC-%03d", currentID));
+    ST_StudentIDField.setText(String.valueOf(currentID));
     ST_NameField.setText("");
     ST_BirthplaceField.setText("");
     ST_AddressField.setText("");
@@ -415,7 +415,7 @@ public class StudentTab extends javax.swing.JPanel {
             DefaultTableModel model = (DefaultTableModel) ST_Table.getModel();
             
             // Retrieve data from the selected row
-            String studentId = (String) model.getValueAt(selectedRow, 0); // "REC-001"
+            String studentId = (String) model.getValueAt(selectedRow, 0); // e.g., "1"
             String name = (String) model.getValueAt(selectedRow, 1);
             String birthdayStr = (String) model.getValueAt(selectedRow, 2); // "yyyy-MM-dd"
             String birthplace = (String) model.getValueAt(selectedRow, 3);
