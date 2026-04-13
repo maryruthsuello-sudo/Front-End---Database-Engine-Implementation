@@ -5,7 +5,7 @@ import java.sql.Date;
 
 public class Course {
     private String program;
-    private int id;
+    // REMOVED: private int id — student_ID does not exist in the course table
     private String subjectCode;
     private int units;
     private String descriptiveTitle;
@@ -14,11 +14,11 @@ public class Course {
     private String term;
     private Date dateSubmitted;
 
-    public Course(String program, int id, String subjectCode, int units,
+    // REMOVED: int id parameter from constructor
+    public Course(String program, String subjectCode, int units,
                   String descriptiveTitle, BigDecimal grade, String time,
                   String term, Date dateSubmitted) {
         this.program = program;
-        this.id = id;
         this.subjectCode = subjectCode;
         this.units = units;
         this.descriptiveTitle = descriptiveTitle;
@@ -32,9 +32,7 @@ public class Course {
         return program;
     }
 
-    public int getId() {
-        return id;
-    }
+    // REMOVED: getId() — no longer needed
 
     public String getSubjectCode() {
         return subjectCode;
@@ -68,9 +66,7 @@ public class Course {
         this.program = program;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    // REMOVED: setId() — no longer needed
 
     public void setSubjectCode(String subjectCode) {
         this.subjectCode = subjectCode;

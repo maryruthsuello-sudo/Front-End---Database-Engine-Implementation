@@ -29,7 +29,7 @@ public class MainGUI extends javax.swing.JFrame {
         GT = new databaseengine.gui.GradeTab(db);
         GrT = new databaseengine.gui.GraduateTab(db);
         TT = new databaseengine.gui.TORTab(db);
-        
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         MainPanel.setBackground(new java.awt.Color(245, 240, 237));
