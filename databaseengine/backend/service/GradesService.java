@@ -16,6 +16,7 @@ public class GradesService {
         this.connect = connect;
     }
 
+    // retrieves all grades
     public ArrayList<Grades> viewGrade() {
         ArrayList<Grades> grades = new ArrayList<>();
         String sql = "SELECT student_id, subject_code, units, grade FROM completion";
@@ -42,6 +43,7 @@ public class GradesService {
         return grades;
     }
 
+    // call to create =grade 
     public boolean createGrade(Grades newCompletion) {
         String sql = "INSERT INTO completion (student_id, grade, subject_code, units) VALUES (?, ?, ?, ?)";
 
@@ -67,6 +69,7 @@ public class GradesService {
         return false;
     }
 
+    // call to update grade
     public boolean updateGrade(Grades updateCompletion) {
         String sql = "UPDATE completion SET grade = ?, units = ? WHERE student_id = ? AND subject_code = ?";
 
@@ -86,6 +89,7 @@ public class GradesService {
         return false;
     }
 
+    //call to delete grade 
     public boolean deleteGrade(int studentId, String subjectCode) {
         String sql = "DELETE FROM completion WHERE student_id = ? AND subject_code = ?";
 
@@ -102,6 +106,7 @@ public class GradesService {
         return false;
     }
 
+    
     public int getStudentIdByName(String studentName) {
         String sql = "SELECT student_id FROM student WHERE student_name = ?";
 
