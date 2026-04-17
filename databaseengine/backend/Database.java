@@ -18,13 +18,9 @@ public class Database {
     private SectionService section;
     private GraduateService graduate;
     private TORService tor;
-<<<<<<< HEAD
-    private GradesService grade;
-=======
     private EnrollmentService enrollment;
     private CourseService course;
     private GradesService grades;
->>>>>>> main
 
     public Database(Connection connect){
         this.student = new StudentService(connect);
@@ -54,7 +50,7 @@ public class Database {
     }
 
     public GradesService getGrade(){
-        return grade;
+        return grades;
     }
 
     public DepartmentService getDepartment(){
