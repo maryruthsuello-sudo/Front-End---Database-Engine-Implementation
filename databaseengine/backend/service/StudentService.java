@@ -1,13 +1,12 @@
 package databaseengine.backend.service;
 
+import databaseengine.backend.model.Student;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
-import databaseengine.backend.model.Student;
 
 public class StudentService {
     private final Connection connect;
@@ -18,47 +17,30 @@ public class StudentService {
 
     // method to call to create student
     public boolean createStudent(Student newStudent){
-        String sql = "INSERT INTO student (student_name, student_birthday, student_address, student_highschool, student_category, birth_place) "
-               + "VALUES (?, ?, ?, ?, ?, ?)";
-        
-        if (!isStudentExist(newStudent.getName())){
-            try (PreparedStatement pStatement = connect.prepareStatement(sql)){
-                pStatement.setString(1, newStudent.getName());
-                pStatement.setDate(2, newStudent.getBirthday());
-                pStatement.setString(3, newStudent.getAddress());
-                pStatement.setString(4, newStudent.getHighSchool());
-                pStatement.setString(5, newStudent.getCategory());
-                pStatement.setString(6, newStudent.getBirthPlace());
+        // FIX: Now includes student_id in the INSERT so that whatever ID the
+        // user types in the GUI is the one saved to the database.
+        String sql = "INSERT INTO student (student_id, student_name, student_birthday, student_address, student_highschool, student_category, birth_place) "
+               + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-                return pStatement.executeUpdate() > 0;
+        try (PreparedStatement pStatement = connect.prepareStatement(sql)){
+            pStatement.setInt(1, newStudent.getId());
+            pStatement.setString(2, newStudent.getName());
+            pStatement.setDate(3, newStudent.getBirthday());
+            pStatement.setString(4, newStudent.getAddress());
+            pStatement.setString(5, newStudent.getHighSchool());
+            pStatement.setString(6, newStudent.getCategory());
+            pStatement.setString(7, newStudent.getBirthPlace());
 
-            } catch (SQLException e){
-                e.getStackTrace();
-            }
-            
+            return pStatement.executeUpdate() > 0;
+
+        } catch (SQLException e){
+            e.printStackTrace();
         }
-        // student not created
+
         return false;
     }
 
-    private boolean isStudentExist(String name){
-        String sql = "SELECT * FROM student WHERE student_name = ?";
-        try (PreparedStatement stmt = connect.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return true; // student does exists
-            }
-
-        } catch (SQLException e) {
-            e.getStackTrace();
-        }
-        // student does not exists
-        return false;
-    }
-
-    //update student
+    // update student
     public boolean updateStudent(Student student){
         String sql = "UPDATE student SET student_name = ?, student_birthday = ?, student_address = ?, "
                + "student_highschool = ?, student_category = ?, birth_place = ? "
@@ -77,27 +59,24 @@ public class StudentService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // updated successfully
         return false;
     }
 
-    // delete student 
+    // delete student
     public boolean deleteStudent(int id){
         String sql = "DELETE FROM student WHERE student_id = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)){
             pStatement.setInt(1, id);
-            
             return pStatement.executeUpdate() > 0;
-            
+
         } catch (SQLException e){
             e.printStackTrace();
         }
-        // not deleted
         return false;
     }
 
-    //get all students to display in table
+    // get all students to display in table
     public ArrayList<Student> getAllStudents() {
         ArrayList<Student> students = new ArrayList<>();
         String sql = "SELECT student_id, student_name, student_birthday, student_address, "

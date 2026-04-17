@@ -79,13 +79,13 @@ public class CourseService {
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                return true; // safe to delete
+                return true;
             }
 
         } catch (SQLException e) {
-            e.getStackTrace();
+            // FIX #6: was e.getStackTrace() which does nothing
+            e.printStackTrace();
         }
-        // cannot delete
         return false;
     }
 

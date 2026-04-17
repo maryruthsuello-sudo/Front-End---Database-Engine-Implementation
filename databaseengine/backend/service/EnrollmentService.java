@@ -1,12 +1,12 @@
 package databaseengine.backend.service;
 
+import databaseengine.backend.model.Enrollment;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import databaseengine.backend.model.Enrollment;
 
 public class EnrollmentService {
     private final Connection connect;
@@ -15,7 +15,8 @@ public class EnrollmentService {
         this.connect = connect;
     }
 
-    // method to create enrollment
+    // Create enrollment — mirrors createStudent() in StudentService exactly.
+    // No pre-checks. Just INSERT and let the DB enforce constraints.
     public boolean createEnrollment(Enrollment newEnrollment) {
         String sql = "INSERT INTO enrollment (student_id, prog, school_year, date_admitted) "
                   + "VALUES (?, ?, ?, ?)";
@@ -26,8 +27,6 @@ public class EnrollmentService {
                 pStatement.setString(2, newEnrollment.getProgram()); 
                 pStatement.setString(3, newEnrollment.getSchoolYr()); 
                 pStatement.setDate(4, newEnrollment.getDateAdmitted()); 
-
-                return pStatement.executeUpdate() > 0;
 
             } catch (SQLException e) {
                 e.printStackTrace(); 
@@ -51,9 +50,9 @@ public class EnrollmentService {
             }
 
         } catch (SQLException e) {
-            e.getStackTrace();
+            e.printStackTrace(); // prints exact DB error (FK violation, duplicate, etc.)
         }
-        // student does not exists
+
         return false;
     }
 
@@ -73,7 +72,7 @@ public class EnrollmentService {
             e.printStackTrace();
         }
 
-        return false; // update failed
+        return false;
     }
 
     // delete enrollment 
@@ -86,11 +85,10 @@ public class EnrollmentService {
             pStatement.setString(3, schoolYr);
             
             return pStatement.executeUpdate() > 0;
-            
-        } catch (SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        // not deleted
         return false;
     }
 
@@ -100,14 +98,14 @@ public class EnrollmentService {
         String sql = "SELECT student_id, prog, school_year, date_admitted FROM enrollment";
 
         try (Statement stmt = connect.createStatement();
-            ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Enrollment enrollment = new Enrollment(
-                    rs.getInt("student_id"),          
-                    rs.getString("prog"),             
-                    rs.getString("school_year"),      
-                    rs.getDate("date_admitted")      
+                    rs.getInt("student_id"),
+                    rs.getString("prog"),
+                    rs.getString("school_year"),
+                    rs.getDate("date_admitted")
                 );
                 enrollments.add(enrollment);
             }

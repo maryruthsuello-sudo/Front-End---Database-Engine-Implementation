@@ -21,7 +21,7 @@ public class Student {
         this.category = category;
     }
 
-    // for updating existing student
+    // for updating/creating student with a known ID
     public Student(int id, String name, Date birthday, String birthPlace, String address, String highSchool, String category) {
         this.id = id;
         this.name = name;
@@ -84,8 +84,8 @@ public class Student {
         this.category = category;
     }
 
-    public Object getStudentID() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getStudentID'");
+    // FIX: was throwing UnsupportedOperationException — now just returns id
+    public int getStudentID() {
+        return id;
     }
 }
