@@ -1,18 +1,19 @@
 package databaseengine.backend.model;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
 public class Grades {
     private int studentId;
     private BigDecimal grade;
     private String subjectCode;
-    private int units;
+    private Date dateSubmitted;
 
-    public Grades(int studentId, BigDecimal grade, String subjectCode, int units) {
+    public Grades(int studentId, BigDecimal grade, String subjectCode, Date dateSubmitted) {
         this.studentId = studentId;
         this.grade = grade;
         this.subjectCode = subjectCode;
-        this.units = units;
+        this.dateSubmitted = dateSubmitted;
     }
 
     public int getStudentId() {
@@ -27,8 +28,8 @@ public class Grades {
         return subjectCode;
     }
 
-    public int getUnits() {
-        return units;
+    public Date getDateSubmitted() {
+        return dateSubmitted;
     }
 
     public void setStudentId(int studentId) {
@@ -43,7 +44,7 @@ public class Grades {
         this.subjectCode = subjectCode;
     }
 
-    public void setUnits(int units) {
-        this.units = units;
+    public void setDateSubmitted(Date dateSubmitted) {
+        this.dateSubmitted = dateSubmitted;
     }
 }

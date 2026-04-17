@@ -51,7 +51,7 @@ public class GraduateService {
 
     // call to create graduate record
     public boolean createGraduate(Graduate graduate) {
-        if (findGraduate(graduate.getStudentId(), graduate.getProg())) {
+        if (findGraduate(graduate.getStudentId())) {
             System.out.println("Graduate already exists.");
             return false;
         }
@@ -122,12 +122,11 @@ public class GraduateService {
     }
 
      // check if graduate already exists
-    public boolean findGraduate(int studentId, String prog) {
-        String sql = "SELECT 1 FROM graduates WHERE student_id = ? AND prog = ?";
+    public boolean findGraduate(int studentId) {
+        String sql = "SELECT 1 FROM graduates WHERE student_id = ?";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, studentId);
-            ps.setString(2, prog);
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();

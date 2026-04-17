@@ -3,8 +3,8 @@ package databaseengine.backend.model;
 import java.sql.Date;
 
 public class Student {
-    private String name;
     private int id;
+    private String name;
     private Date birthday;
     private String birthPlace;
     private String address;

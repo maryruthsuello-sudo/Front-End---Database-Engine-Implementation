@@ -18,19 +18,14 @@ public class CourseService {
 
     // create course
     public boolean createCourse(Course newCourse) {
-        String sql = "INSERT INTO course (prog, student_ID, subject_code, units, descriptive_title, grade, time, term, date_submitted) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO course (subject_code, prog, units, descriptive_title) "
+                   + "VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
-            pstmt.setString(1, newCourse.getProgram());
-            pstmt.setInt(2, newCourse.getId());
-            pstmt.setString(3, newCourse.getSubjectCode());
-            pstmt.setInt(4, newCourse.getUnits());
-            pstmt.setString(5, newCourse.getDescriptiveTitle());
-            pstmt.setBigDecimal(6, newCourse.getGrade());
-            pstmt.setString(7, newCourse.getTime());
-            pstmt.setString(8, newCourse.getTerm());
-            pstmt.setDate(9, newCourse.getDateSubmitted());
+            pstmt.setString(1, newCourse.getSubjectCode());
+            pstmt.setString(2, newCourse.getProgram());
+            pstmt.setInt(3, newCourse.getUnits());
+            pstmt.setString(4, newCourse.getDescriptiveTitle());
 
             return pstmt.executeUpdate() > 0;
 
@@ -43,19 +38,13 @@ public class CourseService {
 
     // update course by subject_code
     public boolean updateCourse(Course course) {
-        String sql = "UPDATE course SET prog = ?, student_ID = ?, units = ?, descriptive_title = ?, "
-                   + "grade = ?, time = ?, term = ?, date_submitted = ? WHERE subject_code = ?";
+        String sql = "UPDATE course SET prog = ?, units = ?, descriptive_title = ? WHERE subject_code = ?";
 
         try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
             pstmt.setString(1, course.getProgram());
-            pstmt.setInt(2, course.getId());
-            pstmt.setInt(3, course.getUnits());
-            pstmt.setString(4, course.getDescriptiveTitle());
-            pstmt.setBigDecimal(5, course.getGrade());
-            pstmt.setString(6, course.getTime());
-            pstmt.setString(7, course.getTerm());
-            pstmt.setDate(8, course.getDateSubmitted());
-            pstmt.setString(9, course.getSubjectCode());
+            pstmt.setInt(2, course.getUnits());
+            pstmt.setString(3, course.getDescriptiveTitle());
+            pstmt.setString(4, course.getSubjectCode());
 
             return pstmt.executeUpdate() > 0;
 
@@ -103,7 +92,7 @@ public class CourseService {
     // get all courses
     public ArrayList<Course> getAllCourses() {
         ArrayList<Course> courses = new ArrayList<>();
-        String sql = "SELECT prog, student_ID, subject_code, units, descriptive_title, grade, time, term, date_submitted FROM course";
+        String sql = "SELECT prog, subject_code, units, descriptive_title FROM course";
 
         try (Statement stmt = connect.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -111,14 +100,9 @@ public class CourseService {
             while (rs.next()) {
                 Course course = new Course(
                     rs.getString("prog"),
-                    rs.getInt("student_ID"),
                     rs.getString("subject_code"),
                     rs.getInt("units"),
-                    rs.getString("descriptive_title"),
-                    rs.getBigDecimal("grade"),
-                    rs.getString("time"),
-                    rs.getString("term"),
-                    rs.getDate("date_submitted")
+                    rs.getString("descriptive_title")
                 );
                 courses.add(course);
             }

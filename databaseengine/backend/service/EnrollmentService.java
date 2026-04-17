@@ -20,7 +20,7 @@ public class EnrollmentService {
         String sql = "INSERT INTO enrollment (student_id, prog, school_year, date_admitted) "
                   + "VALUES (?, ?, ?, ?)";
         
-        if (!isEnrolled(newEnrollment.getId())){
+        if (!isEnrolled(newEnrollment.getId(), newEnrollment.getProgram(), newEnrollment.getSchoolYr())) {
             try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
                 pStatement.setInt(1, newEnrollment.getId()); 
                 pStatement.setString(2, newEnrollment.getProgram()); 
@@ -38,10 +38,12 @@ public class EnrollmentService {
         return false;
     }
 
-    private boolean isEnrolled(int id){
-        String sql = "SELECT * FROM enrollment WHERE student_id = ?";
+    private boolean isEnrolled(int id, String prog, String schoolYr){
+        String sql = "SELECT * FROM enrollment WHERE student_id = ? AND prog = ? AND school_year = ?";
         try (PreparedStatement stmt = connect.prepareStatement(sql)) {
             stmt.setInt(1, id);
+            stmt.setString(2, prog);
+            stmt.setString(3, schoolYr);
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
@@ -57,14 +59,13 @@ public class EnrollmentService {
 
     // Update enrollment
     public boolean updateEnrollment(Enrollment enrollment) {
-        String sql = "UPDATE enrollment SET prog = ?, school_year = ?, date_admitted = ? "
-                  + "WHERE student_id = ?";
+        String sql = "UPDATE enrollment SET  date_admitted = ? WHERE student_id = ? AND prog = ? AND school_year = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, enrollment.getProgram());  
-            pStatement.setString(2, enrollment.getSchoolYr());    
-            pStatement.setDate(3, enrollment.getDateAdmitted());    
-            pStatement.setInt(4, enrollment.getId());
+            pStatement.setDate(1, enrollment.getDateAdmitted());    
+            pStatement.setInt(2, enrollment.getId());
+            pStatement.setString(3, enrollment.getProgram());  
+            pStatement.setString(4, enrollment.getSchoolYr());    
 
             return pStatement.executeUpdate() > 0;
 
@@ -76,11 +77,13 @@ public class EnrollmentService {
     }
 
     // delete enrollment 
-    public boolean deleteEnrollment(int id){
-        String sql = "DELETE FROM enrollment WHERE student_id = ?";
+    public boolean deleteEnrollment(int id, String prog, String schoolYr){
+        String sql = "DELETE FROM enrollment WHERE student_id = ? AND prog = ? AND school_year = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)){
             pStatement.setInt(1, id);
+            pStatement.setString(2, prog);
+            pStatement.setString(3, schoolYr);
             
             return pStatement.executeUpdate() > 0;
             

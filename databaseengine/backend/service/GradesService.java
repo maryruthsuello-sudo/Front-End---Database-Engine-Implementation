@@ -19,7 +19,7 @@ public class GradesService {
     // retrieves all grades
     public ArrayList<Grades> viewGrade() {
         ArrayList<Grades> grades = new ArrayList<>();
-        String sql = "SELECT student_id, subject_code, units, grade FROM completion";
+        String sql = "SELECT student_id, subject_code, grade, date_submitted FROM completion";
 
         try (
             PreparedStatement ps = connect.prepareStatement(sql);
@@ -30,7 +30,7 @@ public class GradesService {
                     rs.getInt("student_id"),
                     rs.getBigDecimal("grade"),
                     rs.getString("subject_code"),
-                    rs.getInt("units")
+                    rs.getDate("date_submitted")
                 );
 
                 grades.add(grade);
@@ -45,14 +45,14 @@ public class GradesService {
 
     // call to create =grade 
     public boolean createGrade(Grades newCompletion) {
-        String sql = "INSERT INTO completion (student_id, grade, subject_code, units) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO completion (student_id, grade, subject_code, date_submitted) VALUES (?, ?, ?, ?)";
 
         if(!findGrade(newCompletion.getStudentId(), newCompletion.getSubjectCode())){
             try (PreparedStatement ps = connect.prepareStatement(sql)) {
                 ps.setInt(1, newCompletion.getStudentId());
                 ps.setBigDecimal(2, newCompletion.getGrade());
                 ps.setString(3, newCompletion.getSubjectCode());
-                ps.setInt(4, newCompletion.getUnits());
+                ps.setDate(4, newCompletion.getDateSubmitted());
 
                 int affectedRow = ps.executeUpdate();
 
@@ -71,11 +71,11 @@ public class GradesService {
 
     // call to update grade
     public boolean updateGrade(Grades updateCompletion) {
-        String sql = "UPDATE completion SET grade = ?, units = ? WHERE student_id = ? AND subject_code = ?";
+        String sql = "UPDATE completion SET grade = ?, date_submitted = ? WHERE student_id = ? AND subject_code = ?";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setBigDecimal(1, updateCompletion.getGrade());
-            ps.setInt(2, updateCompletion.getUnits());
+            ps.setDate(2, updateCompletion.getDateSubmitted());
             ps.setInt(3, updateCompletion.getStudentId());
             ps.setString(4, updateCompletion.getSubjectCode());
 

@@ -18,16 +18,14 @@ public class DepartmentService {
 
     // method to call to create department
     public boolean createDepartment(Department newDepartment){
-        String sql = "INSERT INTO department (college, prog, dept_head, dean, instructor, course) "
-               + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO department (college, prog, dept_head, dean) "
+               + "VALUES (?, ?, ?, ?)";
         
         try (PreparedStatement pStatement = connect.prepareStatement(sql)){
             pStatement.setString(1, newDepartment.getCollege());
             pStatement.setString(2, newDepartment.getProgram());
             pStatement.setString(3, newDepartment.getDeptHead());
             pStatement.setString(4, newDepartment.getDean());
-            pStatement.setString(5, newDepartment.getInstructor());
-            pStatement.setString(6, newDepartment.getCourse());
             
             return pStatement.executeUpdate() > 0;
 
@@ -41,17 +39,15 @@ public class DepartmentService {
 
         // update department
     public boolean updateDepartment(Department department){
-        String sql = "UPDATE department SET instructor = ?, dean = ?, "
-              + "dept_head = ?, course = ?, college = ? "
+        String sql = "UPDATE department SET dean = ?, "
+              + "dept_head = ?, college = ? "
               + "WHERE prog = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, department.getInstructor());
-            pStatement.setString(2, department.getDean());
-            pStatement.setString(3, department.getDeptHead());
-            pStatement.setString(4, department.getCourse());
-            pStatement.setString(5, department.getCollege());
-            pStatement.setString(6, department.getProgram()); // WHERE prog = ?
+            pStatement.setString(1, department.getDean());
+            pStatement.setString(2, department.getDeptHead());
+            pStatement.setString(3, department.getCollege());
+            pStatement.setString(4, department.getProgram()); // WHERE prog = ?
 
             return pStatement.executeUpdate() > 0;
 
@@ -81,7 +77,7 @@ public class DepartmentService {
     //get all departments to display in table
     public ArrayList<Department> getAllDepartments() {
         ArrayList<Department> departments = new ArrayList<>();
-        String sql = "SELECT college, prog, dept_head, dean, instructor, course FROM department";
+        String sql = "SELECT college, prog, dept_head, dean FROM department";
 
         try (Statement stmt = connect.createStatement();
             ResultSet rs = stmt.executeQuery(sql)) {
@@ -91,9 +87,7 @@ public class DepartmentService {
                     rs.getString("college"),
                     rs.getString("prog"),
                     rs.getString("dept_head"),
-                    rs.getString("dean"),
-                    rs.getString("instructor"),
-                    rs.getString("course")
+                    rs.getString("dean")
                 );
 
                 departments.add(department);
