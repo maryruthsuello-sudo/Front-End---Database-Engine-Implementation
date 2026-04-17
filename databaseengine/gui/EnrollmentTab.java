@@ -7,14 +7,23 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Enrollment;
+
 
 public class EnrollmentTab extends javax.swing.JPanel {
 
-    public EnrollmentTab() {
+    private ArrayList<Enrollment> enrollmentList;
+    private Database db;
+
+    public EnrollmentTab(Database db) {
         initComponents();
-        
-        // Add ListSelectionListener to the table for synchronization
+        this.db = db;
+        loadTable(); // Load existing enrollment records from DB on startup
+
         ET_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -25,6 +34,27 @@ public class EnrollmentTab extends javax.swing.JPanel {
         });
     }
 
+    /**
+     * Fetches all enrollment records from the database and repopulates the table.
+     * Also refreshes the in-memory enrollmentList.
+     * Called after every Add / Update / Delete — mirrors the pattern in StudentTab.
+     */
+    private void loadTable() {
+        this.enrollmentList = db.getEnrollment().getAllEnrollment();
+        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
+        model.setRowCount(0); // Clear existing rows
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Enrollment e : enrollmentList) {
+            model.addRow(new Object[]{
+                String.valueOf(e.getId()),
+                e.getProgram(),
+                e.getSchoolYr(),
+                e.getDateAdmitted() != null ? sdf.format(e.getDateAdmitted()) : ""
+            });
+        }
+    }
+
     private void initComponents() {
 
         ET_LeftPanel = new javax.swing.JPanel();
@@ -33,7 +63,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
         ET_SchoolYear = new javax.swing.JLabel();
         ET_DateAdmitted = new javax.swing.JLabel();
         ET_StudentField = new javax.swing.JTextField();
-        ET_ProgramField = new javax.swing.JComboBox<>();
+        ET_ProgramField = new javax.swing.JTextField();
         ET_SchoolYearField = new javax.swing.JTextField();
         ET_DateAdmittedField = new JSpinner(new javax.swing.SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(ET_DateAdmittedField, "yyyy-MM-dd");
@@ -51,47 +81,46 @@ public class EnrollmentTab extends javax.swing.JPanel {
 
         ET_LeftPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        ET_Student.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Student.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Student.setForeground(new java.awt.Color(250, 247, 245));
-        ET_Student.setText("Student");
+        ET_Student.setText("Student ID");
 
-        ET_Program.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Program.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Program.setForeground(new java.awt.Color(250, 247, 245));
         ET_Program.setText("Program");
 
-        ET_SchoolYear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_SchoolYear.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_SchoolYear.setForeground(new java.awt.Color(250, 247, 245));
         ET_SchoolYear.setText("School Year");
 
-        ET_DateAdmitted.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_DateAdmitted.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_DateAdmitted.setForeground(new java.awt.Color(250, 247, 245));
         ET_DateAdmitted.setText("Date Admitted");
 
         ET_StudentField.setBackground(new java.awt.Color(250, 247, 245));
 
         ET_ProgramField.setBackground(new java.awt.Color(250, 247, 245));
-        ET_ProgramField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Bachelor of Science in Computer Science", "Bachelor of Science in Information Technology", "Bachelor of Science in Information Systems" }));
 
         ET_SchoolYearField.setBackground(new java.awt.Color(250, 247, 245));
         ET_SchoolYearField.setText("2025-2026");
 
         ET_Add.setBackground(new java.awt.Color(210, 180, 140));
-        ET_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Add.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Add.setText("Add");
         ET_Add.addActionListener(this::ET_AddActionPerformed);
 
         ET_Update.setBackground(new java.awt.Color(210, 180, 140));
-        ET_Update.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Update.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Update.setText("Update");
         ET_Update.addActionListener(this::ET_UpdateActionPerformed);
 
         ET_Delete.setBackground(new java.awt.Color(210, 180, 140));
-        ET_Delete.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Delete.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Delete.setText("Delete");
         ET_Delete.addActionListener(this::ET_DeleteActionPerformed);
 
         ET_Clear.setBackground(new java.awt.Color(210, 180, 140));
-        ET_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        ET_Clear.setFont(new java.awt.Font("Segoe UI", 1, 16));
         ET_Clear.setText("Clear");
         ET_Clear.addActionListener(this::ET_ClearActionPerformed);
 
@@ -142,7 +171,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
                 .addComponent(ET_DateAdmitted)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ET_DateAdmittedField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(ET_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ET_Add)
                     .addComponent(ET_Update)
@@ -154,15 +183,9 @@ public class EnrollmentTab extends javax.swing.JPanel {
         ET_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         ET_Table.setModel(new DefaultTableModel(
-            new Object [][] {},
-            new String [] {
-                "Student", "Program", "School Year", "Date Admitted"
-            }
+            new Object[][] {},
+            new String[] {"Student ID", "Program", "School Year", "Date Admitted"}
         ));
-        ET_Table.getColumnModel().getColumn(0).setPreferredWidth(180); // Student
-        ET_Table.getColumnModel().getColumn(1).setPreferredWidth(400); // Program
-        ET_Table.getColumnModel().getColumn(2).setPreferredWidth(120); // School Year
-        ET_Table.getColumnModel().getColumn(3).setPreferredWidth(160); // Date Admitted
 
         ET_RightScrollPane.setViewportView(ET_Table);
 
@@ -203,87 +226,134 @@ public class EnrollmentTab extends javax.swing.JPanel {
                     .addComponent(ET_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }
 
-    private void ET_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        String student = ET_StudentField.getText().trim();
-        if (student.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+    private void ET_AddActionPerformed(java.awt.event.ActionEvent evt) {
+        String studentIdStr = ET_StudentField.getText().trim();
+        if (studentIdStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String program = (String) ET_ProgramField.getSelectedItem();
-        String schoolYear = ET_SchoolYearField.getText();
-        
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number!", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String program    = ET_ProgramField.getText().trim();
+        if (program.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Program cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String schoolYear = ET_SchoolYearField.getText().trim();
+
         Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateAdmitted = sdf.format(dateAdmittedVal);
+        String dateAdmittedStr = sdf.format(dateAdmittedVal);
 
-        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-        model.addRow(new Object[]{student, program, schoolYear, dateAdmitted});
+        Enrollment newEnrollment = new Enrollment(
+            studentId,
+            program,
+            schoolYear,
+            java.sql.Date.valueOf(dateAdmittedStr)
+        );
 
-        JOptionPane.showMessageDialog(this, "Successfully Added!");
+        boolean success = db.getEnrollment().createEnrollment(newEnrollment);
+        if (!success) {
+            JOptionPane.showMessageDialog(this,
+                "Failed to enroll. Either the Student ID does not exist in the system, "
+                + "or this student is already enrolled.",
+                "Enrollment Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Re-fetch from DB so the table is always in sync
+        loadTable();
         ET_ClearActionPerformed(null);
-    }                                      
+        JOptionPane.showMessageDialog(this, "Student enrolled successfully!", "Add Success", JOptionPane.INFORMATION_MESSAGE);
+    }
 
-    private void ET_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void ET_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = ET_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String student = ET_StudentField.getText().trim();
-        if (student.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student name cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        // Use the ID from the in-memory list (same as DB), not the text field,
+        // so the student ID of an enrollment record cannot be accidentally changed.
+        Enrollment toUpdate = enrollmentList.get(selectedRow);
+
+        String program    = ET_ProgramField.getText().trim();
+        if (program.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Program cannot be empty!", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        String schoolYear = ET_SchoolYearField.getText().trim();
 
-        String program = (String) ET_ProgramField.getSelectedItem();
-        String schoolYear = ET_SchoolYearField.getText();
-        
         Date dateAdmittedVal = (Date) ET_DateAdmittedField.getValue();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateAdmitted = sdf.format(dateAdmittedVal);
+        String dateAdmittedStr = sdf.format(dateAdmittedVal);
 
-        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-        model.setValueAt(student, selectedRow, 0);
-        model.setValueAt(program, selectedRow, 1);
-        model.setValueAt(schoolYear, selectedRow, 2);
-        model.setValueAt(dateAdmitted, selectedRow, 3);
-        
-        JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
-    }                                         
+        toUpdate.setProgram(program);
+        toUpdate.setSchoolYr(schoolYear);
+        toUpdate.setDateAdmitted(java.sql.Date.valueOf(dateAdmittedStr));
 
-    private void ET_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
-        int row = ET_Table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a row to delete.");
+        boolean success = db.getEnrollment().updateEnrollment(toUpdate);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Update failed. Please try again.", "Update Failed", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-        model.removeRow(row);
-
-        JOptionPane.showMessageDialog(this, "Successfully Deleted!");
+        // Re-fetch from DB so the table is always in sync
+        loadTable();
         ET_ClearActionPerformed(null);
-    }                                         
+        JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
+    }
 
-    private void ET_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    private void ET_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
+        int row = ET_Table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Are you sure you want to delete this enrollment record?",
+            "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        Enrollment toDelete = enrollmentList.get(row);
+        boolean success = db.getEnrollment().deleteEnrollment(toDelete.getId());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Delete failed. Please try again.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Re-fetch from DB so the table is always in sync
+        loadTable();
+        ET_ClearActionPerformed(null);
+        JOptionPane.showMessageDialog(this, "Deleted successfully!", "Delete Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void ET_ClearActionPerformed(java.awt.event.ActionEvent evt) {
         ET_StudentField.setText("");
-        ET_ProgramField.setSelectedIndex(0);
+        ET_ProgramField.setText("");
         ET_SchoolYearField.setText("2025-2026");
         ET_DateAdmittedField.setValue(new Date());
         ET_Table.clearSelection();
-    }                                        
+    }
 
     private void ET_TableSelectionChanged(ListSelectionEvent e) {
         int selectedRow = ET_Table.getSelectedRow();
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) ET_Table.getModel();
-            
+
             ET_StudentField.setText((String) model.getValueAt(selectedRow, 0));
-            ET_ProgramField.setSelectedItem(model.getValueAt(selectedRow, 1));
+            ET_ProgramField.setText((String) model.getValueAt(selectedRow, 1));
             ET_SchoolYearField.setText((String) model.getValueAt(selectedRow, 2));
             String dateStr = (String) model.getValueAt(selectedRow, 3);
 
@@ -293,6 +363,8 @@ public class EnrollmentTab extends javax.swing.JPanel {
             } catch (ParseException ex) {
                 System.err.println("Error parsing date: " + ex.getMessage());
             }
+        } else {
+            ET_ClearActionPerformed(null);
         }
     }
 
@@ -303,7 +375,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
     private javax.swing.JButton ET_Delete;
     private javax.swing.JPanel ET_LeftPanel;
     private javax.swing.JLabel ET_Program;
-    private javax.swing.JComboBox<String> ET_ProgramField;
+    private javax.swing.JTextField ET_ProgramField;
     private javax.swing.JPanel ET_RightPanel;
     private javax.swing.JScrollPane ET_RightScrollPane;
     private javax.swing.JLabel ET_SchoolYear;

@@ -7,15 +7,23 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Section;
+
 public class SectionTab extends javax.swing.JPanel {
 
-    // In-memory list to store sections temporarily (no DB yet)
-    private ArrayList<String[]> sectionList = new ArrayList<>();
+    private ArrayList<Section> sectionList;
+    private Database db;
 
-    public SectionTab() {
+    public SectionTab(Database db) {
         initComponents();
+        this.db = db;
 
-        // Populate fields when a row is selected — same as StudentTab
+        // Load existing records from the database
+        this.sectionList = db.getSection().viewSection();
+        loadTableFromList();
+
+        // Populate fields when a row is selected
         SeT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -24,6 +32,19 @@ public class SectionTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    // Populates the JTable from the sectionList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+        model.setRowCount(0);
+        for (Section s : sectionList) {
+            model.addRow(new Object[]{
+                s.getCourseYear(),
+                String.valueOf(s.getNoOfStudents()),
+                s.getSubjectCode()
+            });
+        }
     }
 
     private void initComponents() {
@@ -198,38 +219,47 @@ public class SectionTab extends javax.swing.JPanel {
         );
     }
 
-    // ADD — validates fields, checks for duplicate, adds to list and table
+    // ADD — validates, saves to DB, adds to list and table
     private void SeT_AddActionPerformed(java.awt.event.ActionEvent evt) {
         String courseYear = SeT_CourseYearField.getSelectedItem().toString();
-        String numOfStudents = SeT_NumOfStudentsField.getText().trim();
+        String numOfStudentsStr = SeT_NumOfStudentsField.getText().trim();
         String subjectCode = SeT_SubjectCodeField.getText().trim();
 
-        if (numOfStudents.isEmpty() || subjectCode.isEmpty()) {
+        if (numOfStudentsStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Check duplicate: same Course Year + Subject Code
-        for (String[] section : sectionList) {
-            if (section[0].equals(courseYear) && section[2].equals(subjectCode)) {
-                JOptionPane.showMessageDialog(this,
-                    "A section with the same Course Year and Subject Code already exists.",
-                    "Duplicate Entry", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+        int numOfStudents;
+        try {
+            numOfStudents = Integer.parseInt(numOfStudentsStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Number of Students must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        // Add to in-memory list
-        sectionList.add(new String[]{courseYear, numOfStudents, subjectCode});
+        // Build Section object
+        Section newSection = new Section(courseYear, subjectCode, numOfStudents);
 
-        // Add to table
+        // Save to database (createSection handles duplicate check internally)
+        boolean success = db.getSection().createSection(newSection);
+        if (!success) {
+            JOptionPane.showMessageDialog(this,
+                "A section with the same Course Year and Subject Code already exists.",
+                "Duplicate Entry", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        sectionList.add(newSection);
         DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
-        model.addRow(new Object[]{courseYear, numOfStudents, subjectCode});
+        model.addRow(new Object[]{courseYear, numOfStudentsStr, subjectCode});
 
+        JOptionPane.showMessageDialog(this, "Successfully Added!");
         SeT_ClearActionPerformed(evt);
     }
 
-    // UPDATE — updates selected row in list and table
+    // UPDATE — saves to DB, updates list and table
     private void SeT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = SeT_Table.getSelectedRow();
         if (selectedRow == -1) {
@@ -238,27 +268,42 @@ public class SectionTab extends javax.swing.JPanel {
         }
 
         String courseYear = SeT_CourseYearField.getSelectedItem().toString();
-        String numOfStudents = SeT_NumOfStudentsField.getText().trim();
+        String numOfStudentsStr = SeT_NumOfStudentsField.getText().trim();
         String subjectCode = SeT_SubjectCodeField.getText().trim();
 
-        if (numOfStudents.isEmpty() || subjectCode.isEmpty()) {
+        if (numOfStudentsStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Update in-memory list
-        sectionList.set(selectedRow, new String[]{courseYear, numOfStudents, subjectCode});
+        int numOfStudents;
+        try {
+            numOfStudents = Integer.parseInt(numOfStudentsStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Number of Students must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // Update table
+        Section updatedSection = new Section(courseYear, subjectCode, numOfStudents);
+
+        // Update in database
+        boolean success = db.getSection().updateSection(updatedSection);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update section.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list and table
+        sectionList.set(selectedRow, updatedSection);
         DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
         model.setValueAt(courseYear, selectedRow, 0);
-        model.setValueAt(numOfStudents, selectedRow, 1);
+        model.setValueAt(numOfStudentsStr, selectedRow, 1);
         model.setValueAt(subjectCode, selectedRow, 2);
 
         JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // DELETE — removes selected row from list and table
+    // DELETE — removes from DB, list, and table
     private void SeT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = SeT_Table.getSelectedRow();
         if (selectedRow == -1) {
@@ -266,10 +311,17 @@ public class SectionTab extends javax.swing.JPanel {
             return;
         }
 
-        // Remove from in-memory list
-        sectionList.remove(selectedRow);
+        Section toDelete = sectionList.get(selectedRow);
 
-        // Remove from table
+        // Delete from database
+        boolean success = db.getSection().deleteSection(toDelete);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete section from database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        sectionList.remove(selectedRow);
         DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
         model.removeRow(selectedRow);
 
@@ -285,7 +337,7 @@ public class SectionTab extends javax.swing.JPanel {
         SeT_Table.clearSelection();
     }
 
-    // ROW SELECTION — clicking a row fills the fields (same as StudentTab)
+    // ROW SELECTION — clicking a row fills the fields
     private void SeT_TableSelectionChanged(ListSelectionEvent e) {
         int selectedRow = SeT_Table.getSelectedRow();
         if (selectedRow != -1) {

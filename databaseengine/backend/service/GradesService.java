@@ -28,8 +28,8 @@ public class GradesService {
             while (rs.next()) {
                 Grades grade = new Grades(
                     rs.getInt("student_id"),
-                    rs.getBigDecimal("grade"),
                     rs.getString("subject_code"),
+                    rs.getBigDecimal("grade"),
                     rs.getInt("units")
                 );
 

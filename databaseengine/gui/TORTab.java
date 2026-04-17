@@ -10,16 +10,23 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.TOR;
+
 public class TORTab extends javax.swing.JPanel {
 
-    // In-memory list to store TOR records temporarily (no DB yet)
-    // Columns: Student, Date Completed
-    private ArrayList<String[]> torList = new ArrayList<>();
+    private ArrayList<TOR> torList;
+    private Database db;
 
-    public TORTab() {
+    public TORTab(Database db) {
         initComponents();
+        this.db = db;
 
-        // Populate fields when a row is selected — same as SectionTab
+        // Load existing records from the database
+        this.torList = db.getTOR().viewTor();
+        loadTableFromList();
+
+        // Populate fields when a row is selected
         TT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -28,6 +35,19 @@ public class TORTab extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    // Populates the JTable from the torList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) TT_Table.getModel();
+        model.setRowCount(0);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (TOR t : torList) {
+            model.addRow(new Object[]{
+                String.valueOf(t.getStudentId()),
+                sdf.format(t.getDateCompleted())
+            });
+        }
     }
 
     private void initComponents() {
@@ -53,13 +73,12 @@ public class TORTab extends javax.swing.JPanel {
 
         TT_Student.setFont(new java.awt.Font("Segoe UI", 1, 16));
         TT_Student.setForeground(new java.awt.Color(250, 247, 245));
-        TT_Student.setText("Student");
+        TT_Student.setText("Student ID");
 
         TT_DateCompleted.setFont(new java.awt.Font("Segoe UI", 1, 16));
         TT_DateCompleted.setForeground(new java.awt.Color(250, 247, 245));
         TT_DateCompleted.setText("Date Completed");
 
-        // Editable student name text field
         TT_StudentField.setBackground(new java.awt.Color(250, 247, 245));
 
         TT_GenerateTOR.setBackground(new java.awt.Color(210, 180, 140));
@@ -100,10 +119,9 @@ public class TORTab extends javax.swing.JPanel {
 
         TT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
-        // Empty table — no placeholder null rows
         TT_Table.setModel(new javax.swing.table.DefaultTableModel(
             new Object[][]{},
-            new String[]{"Student", "Date Completed"}
+            new String[]{"Student ID", "Date Completed"}
         ));
         TT_RightScrollPane.setViewportView(TT_Table);
 
@@ -146,35 +164,44 @@ public class TORTab extends javax.swing.JPanel {
         );
     }
 
-    // GENERATE TOR — acts as Add: validates, checks duplicate, adds to list and table
+    // GENERATE TOR — validates, saves to DB, adds to list and table
     private void TT_GenerateTORActionPerformed(java.awt.event.ActionEvent evt) {
-        String student = TT_StudentField.getText().trim();
+        String studentIdStr = TT_StudentField.getText().trim();
+
+        if (studentIdStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Student ID.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         Date dateValue = (Date) TT_DateCompletedField.getValue();
         String dateCompleted = new SimpleDateFormat("yyyy-MM-dd").format(dateValue);
 
-        if (student.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a student name.", "Warning", JOptionPane.WARNING_MESSAGE);
+        // Build TOR object
+        TOR newTOR = new TOR(studentId, java.sql.Date.valueOf(dateCompleted));
+
+        // Save to database
+        boolean success = db.getTOR().generateTor(newTOR);
+        if (!success) {
+            JOptionPane.showMessageDialog(this,
+                "Failed to generate TOR. A record for this student may already exist.",
+                "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Check duplicate: same student name already in list
-        for (String[] entry : torList) {
-            if (entry[0].equalsIgnoreCase(student)) {
-                JOptionPane.showMessageDialog(this,
-                    "A TOR record for \"" + student + "\" already exists.",
-                    "Duplicate Entry", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        }
-
-        // Add to in-memory list
-        torList.add(new String[]{student, dateCompleted});
-
-        // Add to table
+        // Add to local list and table
+        torList.add(newTOR);
         DefaultTableModel model = (DefaultTableModel) TT_Table.getModel();
-        model.addRow(new Object[]{student, dateCompleted});
+        model.addRow(new Object[]{studentIdStr, dateCompleted});
 
+        JOptionPane.showMessageDialog(this, "TOR Generated Successfully!");
         clearFields();
     }
 
@@ -184,10 +211,10 @@ public class TORTab extends javax.swing.JPanel {
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) TT_Table.getModel();
 
-            String student      = (String) model.getValueAt(selectedRow, 0);
+            String studentId     = (String) model.getValueAt(selectedRow, 0);
             String dateCompleted = (String) model.getValueAt(selectedRow, 1);
 
-            TT_StudentField.setText(student);
+            TT_StudentField.setText(studentId);
 
             try {
                 Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateCompleted);

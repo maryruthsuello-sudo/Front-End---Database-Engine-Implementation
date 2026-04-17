@@ -15,15 +15,21 @@ public class StartDatabase {
           String dbName = "SuelloUniversity"; // change kung ano name ng database sa postgres
           Connection connect = null;
 
-          try{
-              Class.forName("org.postgresql.Driver");
-              connect = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + dbName,
-              "postgres", password);
-          } catch (Exception e){
-              e.printStackTrace();
-              System.err.println(e.getClass().getName()+": "+e.getMessage());
-              System.exit(0);
-          }
+        try{
+            Class.forName("org.postgresql.Driver");
+            connect = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + dbName,
+            "postgres", password);
+
+            // FIX #1 (ROOT CAUSE): JDBC disables auto-commit by default.
+            // Without this, every INSERT/UPDATE/DELETE is stuck in an uncommitted
+            // transaction and never saved — which is why pgAdmin shows nothing.
+            connect.setAutoCommit(true);
+
+        } catch (Exception e){
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+            System.exit(0);
+        }
         System.out.println("Opened database successfully");
         this.db = new Database(connect);
     }

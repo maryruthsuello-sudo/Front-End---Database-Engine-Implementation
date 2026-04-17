@@ -22,7 +22,7 @@ public class DepartmentService {
                + "VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pStatement = connect.prepareStatement(sql)){
-            pStatement.setString(1, newDepartment.getCollege());
+            pStatement.setString(1, newDepartment.getDeptCollege());
             pStatement.setString(2, newDepartment.getProgram());
             pStatement.setString(3, newDepartment.getDeptHead());
             pStatement.setString(4, newDepartment.getDean());
@@ -50,7 +50,7 @@ public class DepartmentService {
             pStatement.setString(2, department.getDean());
             pStatement.setString(3, department.getDeptHead());
             pStatement.setString(4, department.getCourse());
-            pStatement.setString(5, department.getCollege());
+            pStatement.setString(5, department.getDeptCollege());
             pStatement.setString(6, department.getProgram()); // WHERE prog = ?
 
             return pStatement.executeUpdate() > 0;

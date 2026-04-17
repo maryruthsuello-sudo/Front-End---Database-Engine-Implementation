@@ -1,14 +1,28 @@
 package databaseengine.gui;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import databaseengine.backend.Database;
+import databaseengine.backend.model.Grades;
+
 public class GradeTab extends javax.swing.JPanel {
 
-    public GradeTab() {
+    private ArrayList<Grades> gradeList;
+    private Database db;
+
+    public GradeTab(Database db) {
         initComponents();
+        this.db = db;
+
+        // Load existing records from the database
+        this.gradeList = db.getGrades().viewGrade();
+        loadTableFromList();
 
         // Add ListSelectionListener to synchronize table selection with input fields
         GT_Table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -21,7 +35,20 @@ public class GradeTab extends javax.swing.JPanel {
         });
     }
 
-   
+    // Populates the JTable from the gradeList (used on startup)
+    private void loadTableFromList() {
+        DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
+        model.setRowCount(0);
+        for (Grades g : gradeList) {
+            model.addRow(new Object[]{
+                String.valueOf(g.getStudentId()),
+                g.getSubjectCode(),
+                g.getGrade() != null ? g.getGrade().toString() : "",
+                String.valueOf(g.getUnits())
+            });
+        }
+    }
+
     private void initComponents() {
 
         GT_LeftPanel = new javax.swing.JPanel();
@@ -64,7 +91,6 @@ public class GradeTab extends javax.swing.JPanel {
         GT_StudentField.setBackground(new java.awt.Color(250, 247, 245));
         GT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
         GT_GradeField.setBackground(new java.awt.Color(250, 247, 245));
-
         GT_UnitsField.setBackground(new java.awt.Color(250, 247, 245));
 
         GT_Add.setBackground(new java.awt.Color(210, 180, 140));
@@ -190,89 +216,175 @@ public class GradeTab extends javax.swing.JPanel {
                     .addComponent(GT_RightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-    }// </editor-fold>                        
+    }// </editor-fold>
 
-    private void GT_AddActionPerformed(java.awt.event.ActionEvent evt) {                                       
-        String studentId = GT_StudentField.getText().trim();
+    private void GT_AddActionPerformed(java.awt.event.ActionEvent evt) {
+        String studentIdStr = GT_StudentField.getText().trim();
         String subjectCode = GT_SubjectCodeField.getText().trim();
-        String grade = GT_GradeField.getText().trim();
-        String units = GT_UnitsField.getText().trim();
+        String gradeStr = GT_GradeField.getText().trim();
+        String unitsStr = GT_UnitsField.getText().trim();
 
-        if (studentId.isEmpty() || subjectCode.isEmpty()) {
+        if (studentIdStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int units = 0;
+        if (!unitsStr.isEmpty()) {
+            try {
+                units = Integer.parseInt(unitsStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        BigDecimal grade = null;
+        if (!gradeStr.isEmpty()) {
+            try {
+                grade = new BigDecimal(gradeStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Grade must be a valid decimal number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        // Build Grades object
+        Grades newGrade = new Grades(studentId, subjectCode, grade, units);
+
+        // Save to database
+        boolean success = db.getGrades().createGrade(newGrade);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to add grade record.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Add to local list and table
+        gradeList.add(newGrade);
         DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
-        model.addRow(new Object[]{studentId, subjectCode, grade, units});
+        model.addRow(new Object[]{studentIdStr, subjectCode, gradeStr, unitsStr});
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         GT_ClearActionPerformed(null);
-    }                                      
+    }
 
-    private void GT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void GT_UpdateActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = GT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to update.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String studentId = GT_StudentField.getText().trim();
+        String studentIdStr = GT_StudentField.getText().trim();
         String subjectCode = GT_SubjectCodeField.getText().trim();
-        String grade = GT_GradeField.getText().trim();
-        String units = GT_UnitsField.getText().trim();
+        String gradeStr = GT_GradeField.getText().trim();
+        String unitsStr = GT_UnitsField.getText().trim();
 
-        if (studentId.isEmpty() || subjectCode.isEmpty()) {
+        if (studentIdStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int units = 0;
+        if (!unitsStr.isEmpty()) {
+            try {
+                units = Integer.parseInt(unitsStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        BigDecimal grade = null;
+        if (!gradeStr.isEmpty()) {
+            try {
+                grade = new BigDecimal(gradeStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Grade must be a valid decimal number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        Grades updatedGrade = new Grades(studentId, subjectCode, grade, units);
+
+        // Update in database
+        boolean success = db.getGrades().updateGrade(updatedGrade);
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to update grade record.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update local list and table
+        gradeList.set(selectedRow, updatedGrade);
         DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
-        model.setValueAt(studentId, selectedRow, 0);
+        model.setValueAt(studentIdStr, selectedRow, 0);
         model.setValueAt(subjectCode, selectedRow, 1);
-        model.setValueAt(grade, selectedRow, 2);
-        model.setValueAt(units, selectedRow, 3);
+        model.setValueAt(gradeStr, selectedRow, 2);
+        model.setValueAt(unitsStr, selectedRow, 3);
 
         JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
-    }                                         
+    }
 
-    private void GT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void GT_DeleteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = GT_Table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a row to delete.", "No Row Selected", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        Grades toDelete = gradeList.get(selectedRow);
+
+        // Delete from database
+        boolean success = db.getGrades().deleteGrade(toDelete.getStudentId(), toDelete.getSubjectCode());
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Failed to delete grade record from database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Remove from local list and table
+        gradeList.remove(selectedRow);
         DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
         model.removeRow(selectedRow);
 
         JOptionPane.showMessageDialog(this, "Successfully Deleted!");
         GT_ClearActionPerformed(null);
-    }                                         
+    }
 
-    private void GT_ClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    private void GT_ClearActionPerformed(java.awt.event.ActionEvent evt) {
         GT_StudentField.setText("");
         GT_SubjectCodeField.setText("");
         GT_GradeField.setText("");
         GT_UnitsField.setText("");
         GT_Table.clearSelection();
-    }                                        
+    }
 
     private void GT_TableSelectionChanged(ListSelectionEvent e) {
         int selectedRow = GT_Table.getSelectedRow();
         if (selectedRow != -1) {
             DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
-            
+
             GT_StudentField.setText((String) model.getValueAt(selectedRow, 0));
             GT_SubjectCodeField.setText((String) model.getValueAt(selectedRow, 1));
             GT_GradeField.setText((String) model.getValueAt(selectedRow, 2));
             GT_UnitsField.setText((String) model.getValueAt(selectedRow, 3));
         } else {
-            // Clear fields if selection is lost
-            GT_StudentField.setText("");
-            GT_SubjectCodeField.setText("");
-            GT_GradeField.setText("");
-            GT_UnitsField.setText("");
+            GT_ClearActionPerformed(null);
         }
     }
 
