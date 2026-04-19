@@ -6,8 +6,8 @@ public class Department {
     private String dean;
     private String deptHead;
 
-    public Department(String collge, String program, String dean, String deptHead){
-        this.college = collge;
+    public Department(String college, String program, String dean, String deptHead){
+        this.college = college;
         this.program = program;
         this.dean = dean;
         this.deptHead = deptHead;

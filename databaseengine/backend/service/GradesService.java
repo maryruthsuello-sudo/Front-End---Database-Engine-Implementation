@@ -70,14 +70,16 @@ public class GradesService {
     }
 
     // call to update grade
-    public boolean updateGrade(Grades updateCompletion) {
-        String sql = "UPDATE completion SET grade = ?, date_submitted = ? WHERE student_id = ? AND subject_code = ?";
+    public boolean updateGrade(Grades updateCompletion, int oldStudentId, String oldSubjectCode) {
+        String sql = "UPDATE completion SET student_id = ?, subject_code = ?, grade = ?, date_submitted = ? WHERE student_id = ? AND subject_code = ?";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setBigDecimal(1, updateCompletion.getGrade());
-            ps.setDate(2, updateCompletion.getDateSubmitted());
-            ps.setInt(3, updateCompletion.getStudentId());
-            ps.setString(4, updateCompletion.getSubjectCode());
+            ps.setInt(1, updateCompletion.getStudentId());
+            ps.setString(2, updateCompletion.getSubjectCode());
+            ps.setBigDecimal(3, updateCompletion.getGrade());
+            ps.setDate(4, updateCompletion.getDateSubmitted());
+            ps.setInt(5, oldStudentId);
+            ps.setString(6, oldSubjectCode);
 
             return ps.executeUpdate() > 0;
 

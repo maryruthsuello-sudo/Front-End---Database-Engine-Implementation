@@ -57,15 +57,17 @@ public class EnrollmentService {
     }
 
     // Update enrollment
-    public boolean updateEnrollment(Enrollment enrollment) {
-        String sql = "UPDATE enrollment SET  date_admitted = ? WHERE student_id = ? AND prog = ? AND school_year = ?";
+    public boolean updateEnrollment(Enrollment enrollment, String oldProg, String oldSchoolYr) {
+        String sql = "UPDATE enrollment SET prog = ?, school_year = ?, date_admitted = ? WHERE student_id = ? AND prog = ? AND school_year = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setDate(1, enrollment.getDateAdmitted());    
-            pStatement.setInt(2, enrollment.getId());
-            pStatement.setString(3, enrollment.getProgram());  
-            pStatement.setString(4, enrollment.getSchoolYr());    
-
+            pStatement.setString(1, enrollment.getProgram()); 
+            pStatement.setString(2, enrollment.getSchoolYr());     
+            pStatement.setDate(3, enrollment.getDateAdmitted());    
+            pStatement.setInt(4, enrollment.getId());
+            pStatement.setString(5, oldProg);
+            pStatement.setString(6, oldSchoolYr);
+            
             return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {

@@ -27,9 +27,9 @@ public class SectionService {
             while (rs.next()) { 
                 Section section = new Section(
                     rs.getInt("sectn_id"),
-                    rs.getString("subject_code"),
                     rs.getString("instructor"),
                     rs.getString("course_year"),
+                    rs.getString("subject_code"),
                     rs.getString("time"),
                     rs.getString("term"),
                     rs.getInt("no_of_students")

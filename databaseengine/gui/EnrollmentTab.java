@@ -283,6 +283,11 @@ public class EnrollmentTab extends javax.swing.JPanel {
             return;
         }
 
+        Enrollment selectedEnrollment = enrollmentList.get(selectedRow);
+        int id = selectedEnrollment.getId();
+        String oldProg = selectedEnrollment.getProgram();
+        String oldSchoolYr = selectedEnrollment.getSchoolYr();  
+
         // Use the ID from the in-memory list (same as DB), not the text field,
         // so the student ID of an enrollment record cannot be accidentally changed.
         Enrollment toUpdate = enrollmentList.get(selectedRow);
@@ -302,7 +307,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
         toUpdate.setSchoolYr(schoolYear);
         toUpdate.setDateAdmitted(java.sql.Date.valueOf(dateAdmittedStr));
 
-        boolean success = db.getEnrollment().updateEnrollment(toUpdate);
+        boolean success = db.getEnrollment().updateEnrollment(toUpdate, oldProg, oldSchoolYr);
         if (!success) {
             JOptionPane.showMessageDialog(this, "Update failed. Please try again.", "Update Failed", JOptionPane.ERROR_MESSAGE);
             return;
@@ -327,7 +332,7 @@ public class EnrollmentTab extends javax.swing.JPanel {
         if (confirm != JOptionPane.YES_OPTION) return;
 
         Enrollment toDelete = enrollmentList.get(row);
-        boolean success = db.getEnrollment().deleteEnrollment(toDelete.getId(), z);
+        boolean success = db.getEnrollment().deleteEnrollment(toDelete.getId(), toDelete.getProgram(), toDelete.getSchoolYr());
         if (!success) {
             JOptionPane.showMessageDialog(this, "Delete failed. Please try again.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
             return;

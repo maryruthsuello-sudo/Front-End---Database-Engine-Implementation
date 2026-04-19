@@ -45,7 +45,7 @@ public class TORTab extends javax.swing.JPanel {
         for (TOR t : torList) {
             model.addRow(new Object[]{
                 String.valueOf(t.getStudentId()),
-                sdf.format(t.getDateCompleted())
+                t.getDateCompleted() != null ? sdf.format(t.getDateCompleted()) : ""
             });
         }
     }

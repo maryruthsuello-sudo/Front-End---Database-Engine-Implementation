@@ -42,7 +42,10 @@ public class SectionTab extends javax.swing.JPanel {
             model.addRow(new Object[]{
                 s.getCourseYear(),
                 String.valueOf(s.getNoOfStudents()),
-                s.getSubjectCode()
+                s.getSubjectCode(),
+                s.getInstructor(),
+                s.getTime(),
+                s.getTerm()
             });
         }
     }
@@ -53,6 +56,12 @@ public class SectionTab extends javax.swing.JPanel {
         SeT_CourseYear = new javax.swing.JLabel();
         SeT_NumOfStudents = new javax.swing.JLabel();
         SeT_SubjectCode = new javax.swing.JLabel();
+        SeT_Instructor = new javax.swing.JLabel();
+        SeT_Time = new javax.swing.JLabel();
+        SeT_Term = new javax.swing.JLabel();
+        SeT_InstructorField = new javax.swing.JTextField();
+        SeT_TimeField = new javax.swing.JTextField();
+        SeT_TermField = new javax.swing.JComboBox<>();
         SeT_CourseYearField = new javax.swing.JComboBox<>();
         SeT_NumOfStudentsField = new javax.swing.JTextField();
         SeT_SubjectCodeField = new javax.swing.JTextField();
@@ -80,6 +89,18 @@ public class SectionTab extends javax.swing.JPanel {
         SeT_SubjectCode.setForeground(new java.awt.Color(250, 247, 245));
         SeT_SubjectCode.setText("Subject Code");
 
+        SeT_Instructor.setFont(new java.awt.Font("Segoe UI", 1, 16));
+        SeT_Instructor.setForeground(new java.awt.Color(250, 247, 245));
+        SeT_Instructor.setText("Instructor");
+
+        SeT_Time.setFont(new java.awt.Font("Segoe UI", 1, 16));
+        SeT_Time.setForeground(new java.awt.Color(250, 247, 245));
+        SeT_Time.setText("Time");
+
+        SeT_Term.setFont(new java.awt.Font("Segoe UI", 1, 16));
+        SeT_Term.setForeground(new java.awt.Color(250, 247, 245));
+        SeT_Term.setText("Term");
+
         SeT_CourseYearField.setBackground(new java.awt.Color(250, 247, 245));
         SeT_CourseYearField.setModel(new javax.swing.DefaultComboBoxModel<>(
             new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year"}));
@@ -101,6 +122,15 @@ public class SectionTab extends javax.swing.JPanel {
             });
 
         SeT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
+
+        SeT_InstructorField.setBackground(new java.awt.Color(250, 247, 245));
+
+        SeT_TimeField.setBackground(new java.awt.Color(250, 247, 245));
+
+        SeT_TermField.setBackground(new java.awt.Color(250, 247, 245));
+        SeT_TermField.setModel(new javax.swing.DefaultComboBoxModel<>(
+            new String[]{"1st Sem", "2nd Sem"}
+        ));
 
         SeT_Add.setBackground(new java.awt.Color(210, 180, 140));
         SeT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16));
@@ -145,38 +175,57 @@ public class SectionTab extends javax.swing.JPanel {
                             .addComponent(SeT_SubjectCodeField, 0, 306, Short.MAX_VALUE)
                             .addComponent(SeT_SubjectCode, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(SeT_NumOfStudents, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(SeT_NumOfStudentsField))))
+                            .addComponent(SeT_NumOfStudentsField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(SeT_Instructor, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(SeT_InstructorField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(SeT_Time, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(SeT_TimeField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(SeT_Term, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(SeT_TermField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                        )))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
+        
         SeT_LeftPanelLayout.setVerticalGroup(
-            SeT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(SeT_LeftPanelLayout.createSequentialGroup()
-                .addGap(73, 73, 73)
-                .addComponent(SeT_CourseYear)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SeT_CourseYearField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(SeT_NumOfStudents)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SeT_NumOfStudentsField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
-                .addComponent(SeT_SubjectCode)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SeT_SubjectCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(SeT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(SeT_Add)
-                    .addComponent(SeT_Update)
-                    .addComponent(SeT_Delete)
-                    .addComponent(SeT_Clear))
-                .addGap(14, 14, 14))
-        );
-
+        SeT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(SeT_LeftPanelLayout.createSequentialGroup()
+            .addGap(30, 30, 30)
+            .addComponent(SeT_CourseYear)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_CourseYearField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(18, 18, 18)
+            .addComponent(SeT_NumOfStudents)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_NumOfStudentsField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(18, 18, 18)
+            .addComponent(SeT_SubjectCode)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_SubjectCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(18, 18, 18)
+            .addComponent(SeT_Instructor)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_InstructorField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(18, 18, 18)
+            .addComponent(SeT_Time)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_TimeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(18, 18, 18)
+            .addComponent(SeT_Term)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(SeT_TermField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+            .addGroup(SeT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(SeT_Add)
+                .addComponent(SeT_Update)
+                .addComponent(SeT_Delete)
+                .addComponent(SeT_Clear))
+            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+    );
         SeT_RightPanel.setBackground(new java.awt.Color(92, 35, 42));
 
         SeT_Table.setModel(new javax.swing.table.DefaultTableModel(
             new Object[][]{},
-            new String[]{"Course Year", "Number of Students", "Subject Code"}
+            new String[]{"Course Year", "Number of Students", "Subject Code", "Instructor", "Time", "Term"}
         ));
         SeT_RightScrollPane.setViewportView(SeT_Table);
 
@@ -221,9 +270,13 @@ public class SectionTab extends javax.swing.JPanel {
 
     // ADD — validates, saves to DB, adds to list and table
     private void SeT_AddActionPerformed(java.awt.event.ActionEvent evt) {
+        int id = 0; // ID will be auto-generated by the database
         String courseYear = SeT_CourseYearField.getSelectedItem().toString();
         String numOfStudentsStr = SeT_NumOfStudentsField.getText().trim();
         String subjectCode = SeT_SubjectCodeField.getText().trim();
+        String instructor = SeT_InstructorField.getText().trim();
+        String time = SeT_TimeField.getText().trim();
+        String term = SeT_TermField.getSelectedItem().toString();
 
         if (numOfStudentsStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -239,7 +292,7 @@ public class SectionTab extends javax.swing.JPanel {
         }
 
         // Build Section object
-        Section newSection = new Section(courseYear, subjectCode, numOfStudents);
+        Section newSection = new Section(id, instructor, courseYear, subjectCode, time, term, numOfStudents);
 
         // Save to database (createSection handles duplicate check internally)
         boolean success = db.getSection().createSection(newSection);
@@ -253,7 +306,7 @@ public class SectionTab extends javax.swing.JPanel {
         // Add to local list and table
         sectionList.add(newSection);
         DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
-        model.addRow(new Object[]{courseYear, numOfStudentsStr, subjectCode});
+        model.addRow(new Object[]{courseYear, numOfStudentsStr, subjectCode, instructor, time, term});
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         SeT_ClearActionPerformed(evt);
@@ -267,9 +320,13 @@ public class SectionTab extends javax.swing.JPanel {
             return;
         }
 
+        int id = sectionList.get(selectedRow).getId(); // Get ID from the selected section
         String courseYear = SeT_CourseYearField.getSelectedItem().toString();
         String numOfStudentsStr = SeT_NumOfStudentsField.getText().trim();
         String subjectCode = SeT_SubjectCodeField.getText().trim();
+        String instructor = SeT_InstructorField.getText().trim();
+        String time = SeT_TimeField.getText().trim();
+        String term = SeT_TermField.getSelectedItem().toString();
 
         if (numOfStudentsStr.isEmpty() || subjectCode.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -284,7 +341,7 @@ public class SectionTab extends javax.swing.JPanel {
             return;
         }
 
-        Section updatedSection = new Section(courseYear, subjectCode, numOfStudents);
+        Section updatedSection = new Section(id, instructor, courseYear, subjectCode, time, term, numOfStudents);
 
         // Update in database
         boolean success = db.getSection().updateSection(updatedSection);
@@ -296,9 +353,13 @@ public class SectionTab extends javax.swing.JPanel {
         // Update local list and table
         sectionList.set(selectedRow, updatedSection);
         DefaultTableModel model = (DefaultTableModel) SeT_Table.getModel();
+        
         model.setValueAt(courseYear, selectedRow, 0);
         model.setValueAt(numOfStudentsStr, selectedRow, 1);
         model.setValueAt(subjectCode, selectedRow, 2);
+        model.setValueAt(instructor, selectedRow, 3);
+        model.setValueAt(time, selectedRow, 4);
+        model.setValueAt(term, selectedRow, 5);
 
         JOptionPane.showMessageDialog(this, "Updated successfully!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -314,7 +375,7 @@ public class SectionTab extends javax.swing.JPanel {
         Section toDelete = sectionList.get(selectedRow);
 
         // Delete from database
-        boolean success = db.getSection().deleteSection(toDelete);
+        boolean success = db.getSection().deleteSection(toDelete.getId());
         if (!success) {
             JOptionPane.showMessageDialog(this, "Failed to delete section from database.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -333,7 +394,10 @@ public class SectionTab extends javax.swing.JPanel {
     private void SeT_ClearActionPerformed(java.awt.event.ActionEvent evt) {
         SeT_NumOfStudentsField.setText("");
         SeT_SubjectCodeField.setText("");
+        SeT_InstructorField.setText("");
+        SeT_TimeField.setText("");
         SeT_CourseYearField.setSelectedIndex(0);
+        SeT_TermField.setSelectedIndex(0);
         SeT_Table.clearSelection();
     }
 
@@ -346,10 +410,16 @@ public class SectionTab extends javax.swing.JPanel {
             String courseYear    = (String) model.getValueAt(selectedRow, 0);
             String numOfStudents = (String) model.getValueAt(selectedRow, 1);
             String subjectCode   = (String) model.getValueAt(selectedRow, 2);
+            String instructor    = (String) model.getValueAt(selectedRow, 3);
+            String time          = (String) model.getValueAt(selectedRow, 4);
+            String term          = (String) model.getValueAt(selectedRow, 5);
 
             SeT_CourseYearField.setSelectedItem(courseYear);
             SeT_NumOfStudentsField.setText(numOfStudents);
             SeT_SubjectCodeField.setText(subjectCode);
+            SeT_InstructorField.setText(instructor);
+            SeT_TimeField.setText(time);
+            SeT_TermField.setSelectedItem(term);
         } else {
             SeT_ClearActionPerformed(null);
         }
@@ -360,6 +430,8 @@ public class SectionTab extends javax.swing.JPanel {
     private javax.swing.JLabel SeT_CourseYear;
     private javax.swing.JComboBox<String> SeT_CourseYearField;
     private javax.swing.JButton SeT_Delete;
+    private javax.swing.JLabel SeT_Instructor;
+    private javax.swing.JTextField SeT_InstructorField;
     private javax.swing.JPanel SeT_LeftPanel;
     private javax.swing.JLabel SeT_NumOfStudents;
     private javax.swing.JTextField SeT_NumOfStudentsField;
@@ -368,5 +440,9 @@ public class SectionTab extends javax.swing.JPanel {
     private javax.swing.JLabel SeT_SubjectCode;
     private javax.swing.JTextField SeT_SubjectCodeField;
     private javax.swing.JTable SeT_Table;
+    private javax.swing.JLabel SeT_Time;
+    private javax.swing.JTextField SeT_TimeField;
+    private javax.swing.JLabel SeT_Term;
+    private javax.swing.JComboBox<String> SeT_TermField;
     private javax.swing.JButton SeT_Update;
 }

@@ -86,8 +86,8 @@ public class DepartmentService {
                 Department department = new Department(
                     rs.getString("college"),
                     rs.getString("prog"),
-                    rs.getString("dept_head"),
-                    rs.getString("dean")
+                    rs.getString("dean"),
+                     rs.getString("dept_head")
                 );
 
                 departments.add(department);

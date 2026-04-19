@@ -37,14 +37,15 @@ public class CourseService {
     }
 
     // update course by subject_code
-    public boolean updateCourse(Course course) {
+    public boolean updateCourse(Course updatedCourse, String oldSubjectCode) {
         String sql = "UPDATE course SET prog = ?, units = ?, descriptive_title = ? WHERE subject_code = ?";
 
         try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
-            pstmt.setString(1, course.getProgram());
-            pstmt.setInt(2, course.getUnits());
-            pstmt.setString(3, course.getDescriptiveTitle());
-            pstmt.setString(4, course.getSubjectCode());
+            pstmt.setString(1, updatedCourse.getSubjectCode());
+            pstmt.setString(2, updatedCourse.getProgram());
+            pstmt.setInt(3, updatedCourse.getUnits());
+            pstmt.setString(4, updatedCourse.getDescriptiveTitle());
+            pstmt.setString(5, oldSubjectCode);
 
             return pstmt.executeUpdate() > 0;
 

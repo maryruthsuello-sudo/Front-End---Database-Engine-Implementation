@@ -22,13 +22,13 @@ public class MainGUI extends javax.swing.JFrame {
         Title = new javax.swing.JLabel();
         Tabs = new javax.swing.JTabbedPane();
         ST = new databaseengine.gui.StudentTab(db);
-        PT = new databaseengine.gui.ProgramTab();
-        CT = new databaseengine.gui.CourseTab();
-        ET = new databaseengine.gui.EnrollmentTab();
-        SeT = new databaseengine.gui.SectionTab();
-        GT = new databaseengine.gui.GradeTab();
-        GrT = new databaseengine.gui.GraduateTab();
-        TT = new databaseengine.gui.TORTab();
+        PT = new databaseengine.gui.ProgramTab(db);
+        CT = new databaseengine.gui.CourseTab(db);
+        ET = new databaseengine.gui.EnrollmentTab(db);
+        SeT = new databaseengine.gui.SectionTab(db);
+        GT = new databaseengine.gui.GradeTab(db);
+        GrT = new databaseengine.gui.GraduateTab(db);
+        TT = new databaseengine.gui.TORTab(db);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
