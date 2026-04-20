@@ -21,6 +21,8 @@ public class SectionTab extends javax.swing.JPanel {
 
         // Load existing records from the database
         this.sectionList = db.getSection().viewSection();
+        System.out.println("Sections loaded: " + sectionList.size());
+        
         loadTableFromList();
 
         // Populate fields when a row is selected
