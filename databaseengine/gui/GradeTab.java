@@ -1,6 +1,7 @@
 package databaseengine.gui;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -44,7 +45,7 @@ public class GradeTab extends javax.swing.JPanel {
                 String.valueOf(g.getStudentId()),
                 g.getSubjectCode(),
                 g.getGrade() != null ? g.getGrade().toString() : "",
-                String.valueOf(g.getUnits())
+                g.getDateSubmitted() != null ? g.getDateSubmitted().toString() : ""
             });
         }
     }
@@ -55,11 +56,11 @@ public class GradeTab extends javax.swing.JPanel {
         GT_Student = new javax.swing.JLabel();
         GT_SubjectCode = new javax.swing.JLabel();
         GT_Grade = new javax.swing.JLabel();
-        GT_Units = new javax.swing.JLabel();
+        GT_DateSubmitted = new javax.swing.JLabel();
         GT_StudentField = new javax.swing.JTextField();
         GT_SubjectCodeField = new javax.swing.JTextField();
         GT_GradeField = new javax.swing.JTextField();
-        GT_UnitsField = new javax.swing.JTextField();
+        GT_DateSubmittedField = new javax.swing.JTextField();
         GT_Add = new javax.swing.JButton();
         GT_Update = new javax.swing.JButton();
         GT_Delete = new javax.swing.JButton();
@@ -84,14 +85,14 @@ public class GradeTab extends javax.swing.JPanel {
         GT_Grade.setForeground(new java.awt.Color(250, 247, 245));
         GT_Grade.setText("Grade");
 
-        GT_Units.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        GT_Units.setForeground(new java.awt.Color(250, 247, 245));
-        GT_Units.setText("Units");
+        GT_DateSubmitted.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        GT_DateSubmitted.setForeground(new java.awt.Color(250, 247, 245));
+        GT_DateSubmitted.setText("Date Submitted (YYYY-MM-DD)");
 
         GT_StudentField.setBackground(new java.awt.Color(250, 247, 245));
         GT_SubjectCodeField.setBackground(new java.awt.Color(250, 247, 245));
         GT_GradeField.setBackground(new java.awt.Color(250, 247, 245));
-        GT_UnitsField.setBackground(new java.awt.Color(250, 247, 245));
+        GT_DateSubmittedField.setBackground(new java.awt.Color(250, 247, 245));
 
         GT_Add.setBackground(new java.awt.Color(210, 180, 140));
         GT_Add.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
@@ -131,14 +132,14 @@ public class GradeTab extends javax.swing.JPanel {
                     .addGroup(GT_LeftPanelLayout.createSequentialGroup()
                         .addGap(28, 28, 28)
                         .addGroup(GT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(GT_Units, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(GT_DateSubmitted, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(GT_Grade, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(GT_SubjectCode, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(GT_StudentField, 0, 306, Short.MAX_VALUE)
                             .addComponent(GT_Student, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(GT_SubjectCodeField, 0, 306, Short.MAX_VALUE)
                             .addComponent(GT_GradeField)
-                            .addComponent(GT_UnitsField))))
+                            .addComponent(GT_DateSubmittedField))))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         GT_LeftPanelLayout.setVerticalGroup(
@@ -157,10 +158,10 @@ public class GradeTab extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(GT_GradeField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(48, 48, 48)
-                .addComponent(GT_Units)
+                .addComponent(GT_DateSubmitted)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(GT_UnitsField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(GT_DateSubmittedField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(GT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(GT_Add)
                     .addComponent(GT_Update)
@@ -174,7 +175,7 @@ public class GradeTab extends javax.swing.JPanel {
         GT_Table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {},
             new String [] {
-                "Student ID", "Subject Code", "Grade", "Units"
+                "Student ID", "Subject Code", "Grade", "Date Submitted"
             }
         ));
         GT_RightScrollPane.setViewportView(GT_Table);
@@ -222,10 +223,10 @@ public class GradeTab extends javax.swing.JPanel {
         String studentIdStr = GT_StudentField.getText().trim();
         String subjectCode = GT_SubjectCodeField.getText().trim();
         String gradeStr = GT_GradeField.getText().trim();
-        String unitsStr = GT_UnitsField.getText().trim();
+        String dateSubmittedStr = GT_DateSubmittedField.getText().trim();
 
-        if (studentIdStr.isEmpty() || subjectCode.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        if (studentIdStr.isEmpty() || subjectCode.isEmpty() || dateSubmittedStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID, Subject Code, and Date Submitted cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -235,16 +236,6 @@ public class GradeTab extends javax.swing.JPanel {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Student ID must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
-        }
-
-        int units = 0;
-        if (!unitsStr.isEmpty()) {
-            try {
-                units = Integer.parseInt(unitsStr);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
         }
 
         BigDecimal grade = null;
@@ -257,8 +248,16 @@ public class GradeTab extends javax.swing.JPanel {
             }
         }
 
+        Date dateSubmitted;
+        try {
+            dateSubmitted = Date.valueOf(dateSubmittedStr);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, "Date Submitted must be in YYYY-MM-DD format.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Build Grades object
-        Grades newGrade = new Grades(studentId, subjectCode, grade, units);
+        Grades newGrade = new Grades(studentId, grade, subjectCode, dateSubmitted);
 
         // Save to database
         boolean success = db.getGrades().createGrade(newGrade);
@@ -270,7 +269,7 @@ public class GradeTab extends javax.swing.JPanel {
         // Add to local list and table
         gradeList.add(newGrade);
         DefaultTableModel model = (DefaultTableModel) GT_Table.getModel();
-        model.addRow(new Object[]{studentIdStr, subjectCode, gradeStr, unitsStr});
+        model.addRow(new Object[]{studentIdStr, subjectCode, gradeStr, dateSubmittedStr});
 
         JOptionPane.showMessageDialog(this, "Successfully Added!");
         GT_ClearActionPerformed(null);
@@ -283,13 +282,17 @@ public class GradeTab extends javax.swing.JPanel {
             return;
         }
 
+        Grades selectedGrade = gradeList.get(selectedRow);
+        int oldStudentId = selectedGrade.getStudentId();
+        String oldSubjectCode = selectedGrade.getSubjectCode();
+
         String studentIdStr = GT_StudentField.getText().trim();
         String subjectCode = GT_SubjectCodeField.getText().trim();
         String gradeStr = GT_GradeField.getText().trim();
-        String unitsStr = GT_UnitsField.getText().trim();
+        String dateSubmittedStr = GT_DateSubmittedField.getText().trim();
 
-        if (studentIdStr.isEmpty() || subjectCode.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Student ID and Subject Code cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+        if (studentIdStr.isEmpty() || subjectCode.isEmpty() || dateSubmittedStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Student ID, Subject Code, and Date Submitted cannot be empty!", "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -301,15 +304,6 @@ public class GradeTab extends javax.swing.JPanel {
             return;
         }
 
-        int units = 0;
-        if (!unitsStr.isEmpty()) {
-            try {
-                units = Integer.parseInt(unitsStr);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Units must be a valid number.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
 
         BigDecimal grade = null;
         if (!gradeStr.isEmpty()) {
@@ -321,10 +315,18 @@ public class GradeTab extends javax.swing.JPanel {
             }
         }
 
-        Grades updatedGrade = new Grades(studentId, subjectCode, grade, units);
+        Date dateSubmitted;
+        try {
+            dateSubmitted = Date.valueOf(dateSubmittedStr);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, "Date Submitted must be in YYYY-MM-DD format.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Grades updatedGrade = new Grades(studentId, grade, subjectCode, dateSubmitted);
 
         // Update in database
-        boolean success = db.getGrades().updateGrade(updatedGrade);
+        boolean success = db.getGrades().updateGrade(updatedGrade, oldStudentId, oldSubjectCode);
         if (!success) {
             JOptionPane.showMessageDialog(this, "Failed to update grade record.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -336,7 +338,7 @@ public class GradeTab extends javax.swing.JPanel {
         model.setValueAt(studentIdStr, selectedRow, 0);
         model.setValueAt(subjectCode, selectedRow, 1);
         model.setValueAt(gradeStr, selectedRow, 2);
-        model.setValueAt(unitsStr, selectedRow, 3);
+        model.setValueAt(dateSubmittedStr, selectedRow, 3);
 
         JOptionPane.showMessageDialog(this, "Successfully Updated!", "Update Success", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -370,7 +372,7 @@ public class GradeTab extends javax.swing.JPanel {
         GT_StudentField.setText("");
         GT_SubjectCodeField.setText("");
         GT_GradeField.setText("");
-        GT_UnitsField.setText("");
+        GT_DateSubmittedField.setText("");
         GT_Table.clearSelection();
     }
 
@@ -382,7 +384,7 @@ public class GradeTab extends javax.swing.JPanel {
             GT_StudentField.setText((String) model.getValueAt(selectedRow, 0));
             GT_SubjectCodeField.setText((String) model.getValueAt(selectedRow, 1));
             GT_GradeField.setText((String) model.getValueAt(selectedRow, 2));
-            GT_UnitsField.setText((String) model.getValueAt(selectedRow, 3));
+            GT_DateSubmittedField.setText((String) model.getValueAt(selectedRow, 3));
         } else {
             GT_ClearActionPerformed(null);
         }
@@ -401,7 +403,7 @@ public class GradeTab extends javax.swing.JPanel {
     private javax.swing.JLabel GT_SubjectCode;
     private javax.swing.JTextField GT_SubjectCodeField;
     private javax.swing.JTable GT_Table;
-    private javax.swing.JLabel GT_Units;
-    private javax.swing.JTextField GT_UnitsField;
+    private javax.swing.JLabel GT_DateSubmitted;
+    private javax.swing.JTextField GT_DateSubmittedField;
     private javax.swing.JButton GT_Update;
 }

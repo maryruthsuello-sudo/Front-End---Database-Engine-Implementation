@@ -18,7 +18,7 @@ public class SectionService {
     // call to display section records
     public ArrayList<Section> viewSection(){ 
         ArrayList<Section> sections = new ArrayList<>();
-        String sql = "SELECT course_year, subject_code, no_of_students FROM sectn";
+        String sql = "SELECT sectn_id, subject_code, instructor, course_year, time, term, no_of_students FROM sectn";
         
         try (
             PreparedStatement statement = connect.prepareStatement(sql);
@@ -26,8 +26,12 @@ public class SectionService {
         ) { 
             while (rs.next()) { 
                 Section section = new Section(
+                    rs.getInt("sectn_id"),
+                    rs.getString("instructor"),
                     rs.getString("course_year"),
                     rs.getString("subject_code"),
+                    rs.getString("time"),
+                    rs.getString("term"),
                     rs.getInt("no_of_students")
                 ); 
 
@@ -47,12 +51,15 @@ public class SectionService {
             return false;
         }
 
-        String sql = "INSERT INTO sectn (course_year, no_of_students, subject_code) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO sectn (subject_code, instructor, course_year, time, term, no_of_students) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, newSection.getCourseYear());
-            pStatement.setInt(2, newSection.getNoOfStudents());
-            pStatement.setString(3, newSection.getSubjectCode());
+            pStatement.setString(1, newSection.getSubjectCode());
+            pStatement.setString(2, newSection.getInstructor());
+            pStatement.setString(3, newSection.getCourseYear());
+            pStatement.setString(4, newSection.getTime());
+            pStatement.setString(5, newSection.getTerm());
+            pStatement.setInt(6, newSection.getNoOfStudents());
 
             return pStatement.executeUpdate() > 0;
 
@@ -65,12 +72,16 @@ public class SectionService {
 
     // call to update section
     public boolean updateSection(Section updateSection) {
-        String sql = "UPDATE sectn SET no_of_students = ? WHERE course_year = ? AND subject_code = ?";
+        String sql = "UPDATE sectn SET subject_code = ?, instructor = ?, course_year = ?, time = ?, term = ?, no_of_students = ? WHERE sectn_id = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setInt(1, updateSection.getNoOfStudents());
-            pStatement.setString(2, updateSection.getCourseYear());
-            pStatement.setString(3, updateSection.getSubjectCode());
+            pStatement.setString(1, updateSection.getSubjectCode());
+            pStatement.setString(2, updateSection.getInstructor());
+            pStatement.setString(3, updateSection.getCourseYear());
+            pStatement.setString(4, updateSection.getTime());
+            pStatement.setString(5, updateSection.getTerm());
+            pStatement.setInt(6, updateSection.getNoOfStudents());
+            pStatement.setInt(7, updateSection.getId());
 
             return pStatement.executeUpdate() > 0;
 
@@ -82,12 +93,11 @@ public class SectionService {
     }
 
     // call to delete section
-    public boolean deleteSection(Section deleteSection){
-        String sql = "DELETE FROM sectn WHERE course_year = ? AND subject_code = ?";
+    public boolean deleteSection(int sectnId){
+        String sql = "DELETE FROM sectn WHERE sectn_id = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, deleteSection.getCourseYear());
-            pStatement.setString(2, deleteSection.getSubjectCode());
+            pStatement.setInt(1, sectnId);
 
             return pStatement.executeUpdate() > 0;
 

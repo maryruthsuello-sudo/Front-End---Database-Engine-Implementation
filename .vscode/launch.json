@@ -6,6 +6,23 @@
     "configurations": [
       {
         "type": "java",
+<<<<<<< HEAD
+=======
+        "name": "Main",
+        "request": "launch",
+        "mainClass": "databaseengine.Main",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
+      },
+      {
+        "type": "java",
+>>>>>>> main
+        "name": "MainGUI",
+        "request": "launch",
+        "mainClass": "databaseengine.gui.MainGUI",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
+      },
+      {
+        "type": "java",
         "name": "Tester",
         "request": "launch",
         "mainClass": "databaseengine.gui.Tester",
@@ -24,6 +41,27 @@
         "request": "launch",
         "mainClass": "databaseengine.gui.MainGUI",
         "projectName": "Front-End---Database-Engine-Implementation_d2d5fb2"
+      },
+      {
+        "type": "java",
+        "name": "Main",
+        "request": "launch",
+        "mainClass": "databaseengine.Main",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
+      },
+      {
+        "type": "java",
+        "name": "BackendTester",
+        "request": "launch",
+        "mainClass": "databaseengine.BackendTester",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
+      },
+      {
+        "type": "java",
+        "name": "MainGUI",
+        "request": "launch",
+        "mainClass": "databaseengine.gui.MainGUI",
+        "projectName": "Front-End---Database-Engine-Implementation_13aad471"
       },
       {
         "type": "java",

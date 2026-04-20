@@ -48,7 +48,7 @@ public class GraduateTab extends javax.swing.JPanel {
                 g.getProg(),
                 g.getUnitGrade() != null ? g.getUnitGrade().toString() : "",
                 g.getRating() != null ? g.getRating().toString() : "",
-                sdf.format(g.getGraduationDate()),
+                g.getGraduationDate() != null ? sdf.format(g.getGraduationDate()) : "",
                 g.getFinalGrade() != null ? g.getFinalGrade().toString() : "",
                 g.getMajor()
             });
@@ -123,9 +123,7 @@ public class GraduateTab extends javax.swing.JPanel {
 
         GrT_ProgramField.setBackground(new java.awt.Color(250, 247, 245));
         GrT_ProgramField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
-            "Bachelor of Science in Computer Science",
-            "Bachelor of Science in Information Technology",
-            "Bachelor of Science in Information Systems"
+            "BSCS", "BSIT", "BSIS"
         }));
 
         GrT_UnitGradeField.setBackground(new java.awt.Color(250, 247, 245));
@@ -227,7 +225,7 @@ public class GraduateTab extends javax.swing.JPanel {
                 .addComponent(GrT_Major)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(GrT_MajorField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(GrT_LeftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(GrT_Add)
                     .addComponent(GrT_Update)

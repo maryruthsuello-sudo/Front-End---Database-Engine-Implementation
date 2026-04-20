@@ -20,14 +20,34 @@ public class EnrollmentService {
     public boolean createEnrollment(Enrollment newEnrollment) {
         String sql = "INSERT INTO enrollment (student_id, prog, school_year, date_admitted) "
                   + "VALUES (?, ?, ?, ?)";
+        
+        if (!isEnrolled(newEnrollment.getId(), newEnrollment.getProgram(), newEnrollment.getSchoolYr())) {
+            try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
+                pStatement.setInt(1, newEnrollment.getId()); 
+                pStatement.setString(2, newEnrollment.getProgram()); 
+                pStatement.setString(3, newEnrollment.getSchoolYr()); 
+                pStatement.setDate(4, newEnrollment.getDateAdmitted()); 
 
-        try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setInt(1, newEnrollment.getId());
-            pStatement.setString(2, newEnrollment.getProgram());
-            pStatement.setString(3, newEnrollment.getSchoolYr());
-            pStatement.setDate(4, newEnrollment.getDateAdmitted());
+            } catch (SQLException e) {
+                e.printStackTrace(); 
+            }
+        }
+        
+        // enrollment not created
+        return false;
+    }
 
-            return pStatement.executeUpdate() > 0;
+    private boolean isEnrolled(int id, String prog, String schoolYr){
+        String sql = "SELECT * FROM enrollment WHERE student_id = ? AND prog = ? AND school_year = ?";
+        try (PreparedStatement stmt = connect.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.setString(2, prog);
+            stmt.setString(3, schoolYr);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return true; // student does exists
+            }
 
         } catch (SQLException e) {
             e.printStackTrace(); // prints exact DB error (FK violation, duplicate, etc.)
@@ -37,16 +57,17 @@ public class EnrollmentService {
     }
 
     // Update enrollment
-    public boolean updateEnrollment(Enrollment enrollment) {
-        String sql = "UPDATE enrollment SET prog = ?, school_year = ?, date_admitted = ? "
-                  + "WHERE student_id = ?";
+    public boolean updateEnrollment(Enrollment enrollment, String oldProg, String oldSchoolYr) {
+        String sql = "UPDATE enrollment SET prog = ?, school_year = ?, date_admitted = ? WHERE student_id = ? AND prog = ? AND school_year = ?";
 
         try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setString(1, enrollment.getProgram());
-            pStatement.setString(2, enrollment.getSchoolYr());
-            pStatement.setDate(3, enrollment.getDateAdmitted());
+            pStatement.setString(1, enrollment.getProgram()); 
+            pStatement.setString(2, enrollment.getSchoolYr());     
+            pStatement.setDate(3, enrollment.getDateAdmitted());    
             pStatement.setInt(4, enrollment.getId());
-
+            pStatement.setString(5, oldProg);
+            pStatement.setString(6, oldSchoolYr);
+            
             return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -56,12 +77,15 @@ public class EnrollmentService {
         return false;
     }
 
-    // Delete enrollment by student_id
-    public boolean deleteEnrollment(int studentId) {
-        String sql = "DELETE FROM enrollment WHERE student_id = ?";
+    // delete enrollment 
+    public boolean deleteEnrollment(int id, String prog, String schoolYr){
+        String sql = "DELETE FROM enrollment WHERE student_id = ? AND prog = ? AND school_year = ?";
 
-        try (PreparedStatement pStatement = connect.prepareStatement(sql)) {
-            pStatement.setInt(1, studentId);
+        try (PreparedStatement pStatement = connect.prepareStatement(sql)){
+            pStatement.setInt(1, id);
+            pStatement.setString(2, prog);
+            pStatement.setString(3, schoolYr);
+            
             return pStatement.executeUpdate() > 0;
 
         } catch (SQLException e) {

@@ -2,6 +2,7 @@ package databaseengine.backend;
 
 import java.sql.Connection;
 
+import databaseengine.backend.service.GradesService;
 import databaseengine.backend.service.GraduateService;
 import databaseengine.backend.service.SectionService;
 import databaseengine.backend.service.CourseService;
@@ -46,6 +47,10 @@ public class Database {
 
     public TORService getTOR(){
         return tor;
+    }
+
+    public GradesService getGrade(){
+        return grades;
     }
 
     public DepartmentService getDepartment(){
